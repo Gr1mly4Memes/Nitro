@@ -1,0 +1,114 @@
+--- a/purpur-server/build.gradle.kts
++++ b/purpur-server/build.gradle.kts
+@@ -13,6 +_,7 @@
+ }
+ 
+ val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
++val purpurMavenPublicUrl = "https://repo.purpurmc.org/snapshots/" // Nitro - Initial build
+ 
+ dependencies {
+     mache("io.papermc:mache:1.21.11+build.1")
+@@ -32,7 +_,30 @@
+             outputDir = rootDirectory.dir("paper-server")
+         }
+     }
+-    activeFork = purpur
++
++    // Nitro start - Initial build
++    val nitro = forks.register("nitro") {
++        forks = purpur
++        upstream.patchRepo("paperServer") {
++            upstreamRepo = purpur.patchedRepo("paperServer")
++            patchesDir = rootDirectory.dir("nitro-server/paper-patches")
++            outputDir = rootDirectory.dir("paper-server")
++        }
++        upstream.patchDir("purpurServer") {
++            upstreamPath = "purpur-server"
++            excludes = setOf(
++                "src/minecraft",
++                "paper-patches",
++                "minecraft-patches",
++                "build.gradle.kts",
++                "build.gradle.kts.patch"
++            )
++            patchesDir = rootDirectory.dir("nitro-server/purpur-patches")
++            outputDir = rootDirectory.dir("purpur-server")
++        }
++    }
++    activeFork = nitro
++    // Nitro end - Initial build
+     // Purpur end - Rebrand
+ 
+     spigot {
+@@ -62,6 +_,7 @@
+     libraryRepositories.addAll(
+         "https://repo.maven.apache.org/maven2/",
+         paperMavenPublicUrl,
++        purpurMavenPublicUrl, // Nitro - Initial build
+     )
+ }
+ 
+@@ -122,10 +_,14 @@
+     main {
+         java { srcDir("../paper-server/src/main/java") }
+         resources { srcDir("../paper-server/src/main/resources") }
++        java { srcDir("../purpur-server/src/main/java") } // Nitro - Initial build
++        resources { srcDir("../purpur-server/src/main/resources") } // Nitro - Initial build
+     }
+     test {
+         java { srcDir("../paper-server/src/test/java") }
+         resources { srcDir("../paper-server/src/test/resources") }
++        java { srcDir("../purpur-server/src/test/java") } // Nitro - Initial build
++        resources { srcDir("../purpur-server/src/test/resources") } // Nitro - Initial build
+     }
+ }
+ val log4jPlugins = sourceSets.create("log4jPlugins") {
+@@ -154,7 +_,12 @@
+ }
+ 
+ dependencies {
+-    implementation(project(":purpur-api")) // Purpur
++    implementation(project(":nitro-api")) // Purpur // Nitro
++    // Nitro start
++    implementation("com.github.luben:zstd-jni:1.5.7-3")
++    implementation("at.yawk.lz4:lz4-java:1.10.1")
++    implementation("net.openhft:zero-allocation-hashing:0.16")
++    // Nitro end
+     implementation("ca.spottedleaf:concurrentutil:0.0.8")
+     implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
+     implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
+@@ -217,6 +_,14 @@
+     implementation("me.lucko:spark-paper:1.10.152")
+ }
+ 
++tasks.withType<JavaCompile> {
++    val compilerArgs = options.compilerArgs
++    compilerArgs.add("-Xlint:-module")
++    compilerArgs.add("-Xlint:-removal")
++    compilerArgs.add("-Xlint:-dep-ann")
++    compilerArgs.add("--add-modules=jdk.incubator.vector")
++}
++
+ tasks.jar {
+     manifest {
+         val git = Git(rootProject.layout.projectDirectory.path)
+@@ -229,14 +_,14 @@
+         val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
+         attributes(
+             "Main-Class" to "org.bukkit.craftbukkit.Main",
+-            "Implementation-Title" to "Purpur", // Purpur
++            "Implementation-Title" to "Nitro", // Purpur // Nitro
+             "Implementation-Version" to implementationVersion,
+             "Implementation-Vendor" to date,
+-            "Specification-Title" to "Purpur", // Purpur
++            "Specification-Title" to "Nitro", // Purpur // Nitro
+             "Specification-Version" to project.version,
+-            "Specification-Vendor" to "Purpur Team", // Purpur
+-            "Brand-Id" to "purpurmc:purpur", // Purpur
+-            "Brand-Name" to "Purpur", // Purpur
++            "Specification-Vendor" to "GideonWhite1029", // Purpur // Nitro
++            "Brand-Id" to "gr1mly4memes:nitro", // Purpur // Nitro
++            "Brand-Name" to "Nitro", // Purpur // Nitro
+             "Build-Number" to (build ?: ""),
+             "Build-Time" to buildTime.toString(),
+             "Git-Branch" to gitBranch,
