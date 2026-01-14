@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 11 Jan 2026 19:05:23 -0800
+Subject: [PATCH] Add Config
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 9cb79d891ca3f97661855fb7107198f09d48ff19..a686c4a8d7e671a2d81f1b76ee54d7237d04e129 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1099,6 +1099,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         // Paper end - rewrite chunk system
+         // Paper start - Improved watchdog support - move final shutdown items here
+         Util.shutdownExecutors();
++        gr1mly4memes.nitro.NitroConfig.createWorldSections = false; // Nitro
+         try {
+             net.minecrell.terminalconsole.TerminalConsoleAppender.close(); // Paper - Use TerminalConsoleAppender
+         } catch (final Exception ignored) {
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index 19a25ee84a4211256a1dbb614db9ebf2ce53182f..17e390eeec5d98efce57a5d7f8e1a67d4993ebd7 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -294,6 +294,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         */// Purpur end - Purpur config files // Purpur end - Migrate Setting to reintroduce end void rings
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now
+ 
++        gr1mly4memes.nitro.NitroConfig.init((java.io.File) options.valueOf("nitro-settings")); // Nitro - Server Config
++
+         // this.worldData.setGameType(properties.gameMode.get()); // CraftBukkit - moved to world loading
+         LOGGER.info("Default game type: {}", properties.gameMode.get());
+         // Paper start - Unix domain socket support

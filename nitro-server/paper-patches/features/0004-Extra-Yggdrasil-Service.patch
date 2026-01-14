@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Tue, 13 Jan 2026 19:56:42 -0800
+Subject: [PATCH] Extra Yggdrasil Service
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/profile/PaperAuthenticationService.java b/src/main/java/com/destroystokyo/paper/profile/PaperAuthenticationService.java
+index 48e774677edf17d4a99ae9ed23d1b371dab41abb..0590ce395257e3226e738cd9e072b32a12831a09 100644
+--- a/src/main/java/com/destroystokyo/paper/profile/PaperAuthenticationService.java
++++ b/src/main/java/com/destroystokyo/paper/profile/PaperAuthenticationService.java
+@@ -11,7 +11,7 @@ import java.net.Proxy;
+ 
+ public class PaperAuthenticationService extends YggdrasilAuthenticationService {
+ 
+-    private final Environment environment;
++    protected final Environment environment; // Nitro
+ 
+     public PaperAuthenticationService(Proxy proxy) {
+         super(proxy);

@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 11 Jan 2026 19:05:23 -0800
+Subject: [PATCH] Add Config
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index d319dd5264db492e7b8a5e365170f7e159a05c1a..0a8347db9d45e14b71696e591bc1ee37f2d32fcb 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1036,6 +1036,7 @@ public final class CraftServer implements Server {
+             playerMetadata.removeAll(plugin);
+         }
+         // Paper end
++        gr1mly4memes.nitro.NitroConfig.init((File) console.options.valueOf("nitro-settings")); // Nitro - Server Config
+         this.reloadData();
+         org.spigotmc.SpigotConfig.registerCommands(); // Spigot
+         io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
+@@ -2812,6 +2813,13 @@ public final class CraftServer implements Server {
+         }
+         // Purpur end - Purpur config files
+ 
++        // Nitro start
++        @Override
++        public YamlConfiguration getNitroConfig() {
++            return gr1mly4memes.nitro.NitroConfig.config;
++        }
++        // Nitro end
++
+         @Override
+         public void restart() {
+             CraftServer.this.restart();
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index d665dc3fbd0989eb399c55d0717bc6fd79a0db17..46bf422144c47aa1c41c4b5d7232fc6d5c3388a1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -177,6 +177,14 @@ public class Main {
+                     .describedAs("Yml file");
+                 // Purpur end - Purpur config files
+ 
++                // Nitro start - Server Config
++                acceptsAll(asList("nitro", "nitro-settings"), "File for nitro settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("nitro.yml"))
++                        .describedAs("Yml file");
++                // Nitro end - Server Config
++
+                 this.accepts("server-name", "Name of the server")
+                         .withRequiredArg()
+                         .ofType(String.class)

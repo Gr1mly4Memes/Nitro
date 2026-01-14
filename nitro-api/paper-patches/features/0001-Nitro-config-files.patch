@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 11 Jan 2026 19:05:23 -0800
+Subject: [PATCH] Nitro config files
+
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index a17790d2da3008927b79814629e073b2091ce421..a384ce09dd4f9823c1d2bf3f63c2ab506810524d 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2437,6 +2437,13 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+         }
+         // Purpur end
+ 
++        // Nitro start
++        @NotNull
++        public org.bukkit.configuration.file.YamlConfiguration getNitroConfig() {
++            throw new UnsupportedOperationException("Not supported yet.");
++        }
++        // Nitro end
++
+         /**
+          * Sends the component to the player
+          *

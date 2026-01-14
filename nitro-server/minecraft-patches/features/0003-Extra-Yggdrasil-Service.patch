@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Tue, 13 Jan 2026 19:56:42 -0800
+Subject: [PATCH] Extra Yggdrasil Service
+
+
+diff --git a/com/mojang/authlib/yggdrasil/YggdrasilMinecraftSessionService.java b/com/mojang/authlib/yggdrasil/YggdrasilMinecraftSessionService.java
+index 9e5757391ea32e37b2aac52cc1bb38259a2cc497..f8ae0436f607f1a53a1d86edf4be20c335700f52 100644
+--- a/com/mojang/authlib/yggdrasil/YggdrasilMinecraftSessionService.java
++++ b/com/mojang/authlib/yggdrasil/YggdrasilMinecraftSessionService.java
+@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
+ 
+ public class YggdrasilMinecraftSessionService implements MinecraftSessionService {
+     private static final Logger LOGGER = LoggerFactory.getLogger(YggdrasilMinecraftSessionService.class);
+-    private final MinecraftClient client;
++    protected final MinecraftClient client; // Nitro
+     private final ServicesKeySet servicesKeySet;
+     private final String baseUrl;
+     private final URL joinUrl;
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index 272e2871aca8d283229cc5618e3051146db56681..8327c7b1be507c6348626e3ca613b0338a0a3c43 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -181,7 +181,7 @@ public class Main {
+                 file = new File(bukkitConfiguration.getString("settings.world-container", "."));
+             }
+             // Paper end - fix SPIGOT-5824
+-            Services services = Services.create(new com.destroystokyo.paper.profile.PaperAuthenticationService(Proxy.NO_PROXY), file, userCacheFile, optionSet); // Paper - pass OptionSet to load paper config files; override authentication service; fix world-container
++            Services services = Services.create(new gr1mly4memes.nitro.yggdrasil.NitroAuthenticationService(Proxy.NO_PROXY), file, userCacheFile, optionSet); // Paper - pass OptionSet to load paper config files; override authentication service; fix world-container // Nitro - extra-yggdrasil-service
+             // CraftBukkit start
+             String string = Optional.ofNullable((String) optionSet.valueOf("world")).orElse(dedicatedServerSettings.getProperties().levelName);
+             LevelStorageSource levelStorageSource = LevelStorageSource.createDefault(file.toPath());
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index a686c4a8d7e671a2d81f1b76ee54d7237d04e129..10e5892bf5f6333ec233bc0c9bdb8844e2c90abe 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -246,7 +246,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     private boolean isDemo;
+     private volatile boolean isReady;
+     private long lastOverloadWarningNanos;
+-    protected final Services services;
++    public final Services services; // Nitro
+     private final NotificationManager notificationManager;
+     private final ServerActivityMonitor serverActivityMonitor;
+     private long lastServerStatus;

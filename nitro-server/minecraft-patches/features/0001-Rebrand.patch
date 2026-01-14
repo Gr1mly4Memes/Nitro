@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 11 Jan 2026 19:05:23 -0800
+Subject: [PATCH] Rebrand
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index d09d59cfa274c16e86c2d0a3d0339b7e72be3d13..9cb79d891ca3f97661855fb7107198f09d48ff19 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1295,6 +1295,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             // Paper end
+             org.spigotmc.WatchdogThread.hasStarted = true; // Paper
+             // Paper start - Add onboarding message for initial server start
++            // Nitro start
++            /*
+             if (io.papermc.paper.configuration.GlobalConfiguration.isFirstStart) {
+                 LOGGER.info("*************************************************************************************");
+                 LOGGER.info("This is the first time you're starting this server.");
+@@ -1303,6 +1305,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+                 LOGGER.info("*************************************************************************************");
+             }
+             // Paper end - Add onboarding message for initial server start
++             */
++            // Nitro end
+             // Paper start - Improve outdated version checking
+             if (false && System.getProperty("paper.disableStartupVersionCheck") == null && io.papermc.paper.configuration.GlobalConfiguration.get().updateChecker.enabled) { // Purpur - disable paper startup check
+                 CompletableFuture.runAsync(com.destroystokyo.paper.PaperVersionFetcher::getUpdateStatusStartupMessage, io.papermc.paper.util.MCUtil.ASYNC_EXECUTOR);
+diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+index e7e71018a4d328832fe44eef595e78265ee720ae..d15a0cd69608a1bec5c08bb4be86a5b1e7c0000e 100644
+--- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
++++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+@@ -309,7 +309,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
+ 
+     // Paper start
+     private static void printOversizedLog(String msg, Path file, int x, int z) {
+-        org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO PURPUR - You may ask for help on Discord, but do not file an issue. These error messages can not be removed."); // Purpur - Rebrand
++        org.apache.logging.log4j.LogManager.getLogger().fatal(msg + " (" + file.toString().replaceAll(".+[\\\\/]", "") + " - " + x + "," + z + ") Go clean it up to remove this message. /minecraft:tp " + (x<<4)+" 128 "+(z<<4) + " - DO NOT REPORT THIS TO Nitro - You may ask for help on Discord, but do not file an issue. These error messages can not be removed."); // Purpur - Rebrand // Nitro - Rebrand
+     }
+ 
+     private static CompoundTag readOversizedChunk(RegionFile regionfile, ChunkPos chunkCoordinate) throws IOException {
