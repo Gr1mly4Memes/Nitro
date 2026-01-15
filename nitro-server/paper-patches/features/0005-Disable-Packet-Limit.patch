@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "alagozantoni14@gmail.com" <alagozantoni14@gmail.com>
+Date: Tue, 13 Jan 2026 21:35:55 -0800
+Subject: [PATCH] Disable Packet Limit
+
+
+diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+index cc1906ef871de6a4ff82039d8ddfcd764139f37d..0097e8f7bb39de27bc6ef98ab08c341f2e47bf35 100644
+--- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
++++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
+@@ -272,7 +272,7 @@ public class GlobalConfiguration extends ConfigurationPart {
+             }
+ 
+             public boolean isEnabled() {
+-                return this.interval > 0.0 && this.maxPacketRate > 0.0;
++                return !gr1mly4memes.nitro.NitroConfig.disablePacketLimit && (this.interval > 0.0 && this.maxPacketRate > 0.0); // Nitro - disable packet limit
+             }
+ 
+             public enum ViolateAction {

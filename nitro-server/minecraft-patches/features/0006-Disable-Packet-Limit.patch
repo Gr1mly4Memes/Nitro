@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Tue, 13 Jan 2026 21:35:55 -0800
+Subject: [PATCH] Disable Packet Limit
+
+
+diff --git a/net/minecraft/network/Connection.java b/net/minecraft/network/Connection.java
+index 21e891ecdb90a1828428441aef9c2593253751f8..f2e41c9fd6a68f56e8dc1979eeb9d2263cd07865 100644
+--- a/net/minecraft/network/Connection.java
++++ b/net/minecraft/network/Connection.java
+@@ -221,8 +221,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+                 if (this.stopReadingPackets) {
+                     return;
+                 }
+-                if (this.allPacketCounts != null ||
+-                    io.papermc.paper.configuration.GlobalConfiguration.get().packetLimiter.overrides.containsKey(packet.getClass())) {
++                if (!gr1mly4memes.nitro.NitroConfig.disablePacketLimit && (this.allPacketCounts != null || // Nitro - can disable
++                    io.papermc.paper.configuration.GlobalConfiguration.get().packetLimiter.overrides.containsKey(packet.getClass()))) { // Nitro - can disable
+                     long time = System.nanoTime();
+                     synchronized (PACKET_LIMIT_LOCK) {
+                         if (this.allPacketCounts != null) {
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 60432e4ed8dcb3d895be1f4c526f8cc1c0ed685f..f94b7831ac68ab6d3c0d06af2b6b014cf6e670df 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -854,7 +854,7 @@ public class ServerGamePacketListenerImpl
+     public void handleCustomCommandSuggestions(ServerboundCommandSuggestionPacket packet) {
+         // PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level()); // Paper - AsyncTabCompleteEvent; run this async
+         // CraftBukkit start
+-        if (!this.tabSpamThrottler.isIncrementAndUnderThreshold() && !this.server.getPlayerList().isOp(this.player.nameAndId()) && !this.server.isSingleplayerOwner(this.player.nameAndId())) { // Paper - configurable tab spam limits
++        if (!gr1mly4memes.nitro.NitroConfig.disablePacketLimit && !this.tabSpamThrottler.isIncrementAndUnderThreshold() && !this.server.getPlayerList().isOp(this.player.nameAndId()) && !this.server.isSingleplayerOwner(this.player.nameAndId())) { // Paper - configurable tab spam limits // Nitro - can disable
+             this.disconnectAsync(Component.translatable("disconnect.spam"), org.bukkit.event.player.PlayerKickEvent.Cause.SPAM); // Paper - Kick event cause // Paper - add proper async disconnect
+             return;
+         }
+@@ -2131,6 +2131,7 @@ public class ServerGamePacketListenerImpl
+ 
+         final int threshold = io.papermc.paper.configuration.GlobalConfiguration.get().spamLimiter.incomingPacketThreshold.intValue();
+ 
++        if (gr1mly4memes.nitro.NitroConfig.disablePacketLimit) return true; // Nitro - disable
+         if (this.lastLimitedPacket != -1 && timestamp - this.lastLimitedPacket < threshold && this.limitedPackets++ >= 8) {
+             return false;
+         }
+@@ -2681,6 +2682,7 @@ public class ServerGamePacketListenerImpl
+ 
+     // Spigot start - spam exclusions
+     private void detectRateSpam(String message) {
++        if (gr1mly4memes.nitro.NitroConfig.disablePacketLimit) return; // Nitro - disable
+         // CraftBukkit start - replaced with thread safe throttle
+         if (org.spigotmc.SpigotConfig.enableSpamExclusions) {
+             for (String exclude : org.spigotmc.SpigotConfig.spamExclusions) {
+@@ -3414,7 +3416,7 @@ public class ServerGamePacketListenerImpl
+     @Override
+     public void handlePlaceRecipe(ServerboundPlaceRecipePacket packet) {
+         // Paper start - auto recipe limit
+-        if (!org.bukkit.Bukkit.isPrimaryThread()) {
++        if (!gr1mly4memes.nitro.NitroConfig.disablePacketLimit && !org.bukkit.Bukkit.isPrimaryThread()) { // Nitro - can disable
+             if (!this.recipeSpamPackets.isIncrementAndUnderThreshold()) {
+                 this.disconnectAsync(net.minecraft.network.chat.Component.translatable("disconnect.spam"), org.bukkit.event.player.PlayerKickEvent.Cause.SPAM); // Paper - kick event cause // Paper - add proper async disconnect
+                 return;
