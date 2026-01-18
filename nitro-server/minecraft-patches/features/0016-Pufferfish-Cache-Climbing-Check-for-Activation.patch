@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 18 Jan 2026 09:56:18 -0800
+Subject: [PATCH] Pufferfish Cache Climbing Check for Activation
+
+
+diff --git a/io/papermc/paper/entity/activation/ActivationRange.java b/io/papermc/paper/entity/activation/ActivationRange.java
+index bc62da127a01b33ce8fc0f958bc232d6287d57ec..50204e080fbc9f0bf6f31acfb2827707d9ad72c4 100644
+--- a/io/papermc/paper/entity/activation/ActivationRange.java
++++ b/io/papermc/paper/entity/activation/ActivationRange.java
+@@ -223,7 +223,7 @@ public final class ActivationRange {
+         }
+         // special cases.
+         if (entity instanceof final LivingEntity living) {
+-            if (living.onClimbable() || living.jumping || living.hurtTime > 0 || !living.activeEffects.isEmpty() || living.isFreezing()) {
++            if (living.onClimbableCached() || living.jumping || living.hurtTime > 0 || !living.activeEffects.isEmpty() || living.isFreezing()) { // Nitro // Pufferfish - Use Cached
+                 return 1;
+             }
+             if (entity instanceof final Mob mob && mob.getTarget() != null) {
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index 9ceeff40f07b9c5708c095734d728a91453cf701..3e3a65b102f0df663e858d63e32c2d10cadd63e8 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -2260,6 +2260,17 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+     public Optional<BlockPos> getLastClimbablePos() {
+         return this.lastClimbablePos;
+     }
++    // Nitro // Pufferfish start
++    private boolean cachedOnClimable = false;
++    private BlockPos lastClimbingPosition = null;
++    public boolean onClimbableCached() {
++        if (!this.blockPosition().equals(this.lastClimbingPosition)) {
++            this.cachedOnClimable = this.onClimbable();
++            this.lastClimbingPosition = this.blockPosition();
++        }
++        return this.cachedOnClimable;
++    }
++    // Nitro // Pufferfish end
+ 
+     public boolean onClimbable() {
+         if (this.isSpectator()) {
