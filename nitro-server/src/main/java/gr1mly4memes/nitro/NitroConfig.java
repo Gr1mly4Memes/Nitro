@@ -1,6 +1,7 @@
 package gr1mly4memes.nitro;
 
 import com.destroystokyo.paper.util.SneakyThrow;
+import gr1mly4memes.nitro.chunk.ChunkSystemAlgorithm;
 import gr1mly4memes.nitro.commands.GlobalConfigManager;
 import gr1mly4memes.nitro.commands.NitroCommand;
 import gr1mly4memes.nitro.config.ConfigVerify;
@@ -85,6 +86,9 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.getCommandMap().getKnownCommands().remove("nitro:" + name);
         MinecraftServer.getServer().server.syncCommands();
     }
+
+    @GlobalConfig(name = "chunk-system-algorithm", category = {"Optimizations"})
+    public static ChunkSystemAlgorithm chunkWorkerAlgorithm = ChunkSystemAlgorithm.MOONRISE;
 
     @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
     public static boolean enableSuffocationOptimization = true;

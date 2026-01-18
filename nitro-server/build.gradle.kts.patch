@@ -63,7 +63,7 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -154,7 +_,12 @@
+@@ -154,7 +_,13 @@
  }
  
  dependencies {
@@ -73,6 +73,7 @@
 +    implementation("com.github.luben:zstd-jni:1.5.7-3")
 +    implementation("at.yawk.lz4:lz4-java:1.10.1")
 +    implementation("net.openhft:zero-allocation-hashing:0.16")
++    implementation("net.objecthunter:exp4j:0.4.8")
 +    // Nitro end
      implementation("ca.spottedleaf:concurrentutil:0.0.8")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
