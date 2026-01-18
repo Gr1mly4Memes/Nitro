@@ -86,6 +86,9 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.syncCommands();
     }
 
+    @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
+    public static boolean enableSuffocationOptimization = true;
+
     @GlobalConfig(name = "enable-books", category = {"features"})
     public static boolean enableBooks = false;
 
