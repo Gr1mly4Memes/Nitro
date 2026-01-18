@@ -86,6 +86,27 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.syncCommands();
     }
 
+    // Nitro start - features
+    @GlobalConfig(name = "disable-packet-limit", category = {"features"})
+    public static boolean disablePacketLimit = false;
+
+    @GlobalConfig(name = "disableMovedWronglyThreshold", category = {"features"})
+    public static boolean disableMovedWronglyThreshold = false;
+
+    @GlobalConfig(name = "enable-books", category = {"features"})
+    public static boolean enableBooks = true;
+    // Nitro end - features
+
+    // Nitro start - Optimizations
+    @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
+    public static int maxProjectileLoadsPerTick = 10;
+
+    @GlobalConfig(name = "projectile.max-loads-per-projectile", category = {"Optimizations"})
+    public static int maxProjectileLoadsPerProjectile = 10;
+
+    @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
+    public static boolean enableSuffocationOptimization = true;
+
     @GlobalConfig(name = "enable-async-mob-spawning", category = {"Optimizations"})
     public static boolean enableAsyncMobSpawning = true;
     // Runtime value (reload-safe)
@@ -98,33 +119,7 @@ public final class NitroConfig {
             runtimeAsyncMobSpawning = enableAsyncMobSpawning;
         }
     }
-
-    @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
-    public static int maxProjectileLoadsPerTick = 10;
-
-    @GlobalConfig(name = "projectile.max-loads-per-projectile", category = {"Optimizations"})
-    public static int maxProjectileLoadsPerProjectile = 10;
-
-    @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
-    public static boolean enableSuffocationOptimization = true;
-
-    @GlobalConfig(name = "enable-books", category = {"features"})
-    public static boolean enableBooks = true;
-
-    @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
-    public static boolean lavaRiptide = false; /* not even sure if it works */
-
-    @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
-    public static boolean disableMethodProfiler = true;
-
-    @GlobalConfig(name = "allow-end-crystal-respawn", category = {"Miscellaneous"})
-    public static boolean allowEndCrystalRespawn = true;
-
-    @GlobalConfig(name = "disable-packet-limit", category = {"features"})
-    public static boolean disablePacketLimit = false;
-
-    @GlobalConfig(name = "disableMovedWronglyThreshold", category = {"features"})
-    public static boolean disableMovedWronglyThreshold = false;
+    // Nitro end - Optimizations
 
     // Nitro start - region
     @GlobalConfig(name = "format", category = "region", lock = true, verify = RegionFormatVerify.class)
@@ -208,4 +203,15 @@ public final class NitroConfig {
             return null;
         }
     }
+
+    // Nitro end - Miscellaneous
+    @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
+    public static boolean lavaRiptide = false; /* not even sure if it works */
+
+    @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
+    public static boolean disableMethodProfiler = true;
+
+    @GlobalConfig(name = "allow-end-crystal-respawn", category = {"Miscellaneous"})
+    public static boolean allowEndCrystalRespawn = true;
+    // Nitro end - Miscellaneous
 }
