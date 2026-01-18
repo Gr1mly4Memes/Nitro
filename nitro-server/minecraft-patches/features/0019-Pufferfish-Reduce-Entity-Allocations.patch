@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 18 Jan 2026 10:18:23 -0800
+Subject: [PATCH] Pufferfish Reduce Entity Allocations
+
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 41506648031e9c7a1acf12f56ba02b4aadec344c..e70d0bd400b752f081114b40978ac1833343ecc7 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -369,6 +369,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+     public boolean fixedPose = false; // Paper - Expand Pose API
+     private final int despawnTime; // Paper - entity despawn time limit
+     public int totalEntityAge; // Paper - age-like counter for all entities
++    public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Nitro // Pufferfish - reduce entity allocations
+     public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
+     // Paper start - EAR 2
+     public final boolean defaultActivationState;
+diff --git a/net/minecraft/world/entity/ai/attributes/AttributeMap.java b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+index fd26471047cc5bef28ee9ddba4a8542deef889cc..fbd69d7320d116818bc66b27338889306b87ec83 100644
+--- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -19,15 +19,19 @@ public class AttributeMap {
+     private final Set<AttributeInstance> attributesToUpdate = new ObjectOpenHashSet<>();
+     private final AttributeSupplier supplier;
+     private final net.minecraft.world.entity.LivingEntity entity; // Purpur - Ridables
++    private final java.util.function.Function<Holder<Attribute>, AttributeInstance> createInstance; // Nitro // Pufferfish
+ 
+     public AttributeMap(AttributeSupplier supplier) {
+-        // Purpur start - Ridables
+         this(supplier, null);
+     }
++    
+     public AttributeMap(AttributeSupplier defaultAttributes, net.minecraft.world.entity.LivingEntity entity) {
+         this.entity = entity;
+-        // Purpur end - Ridables
+         this.supplier = defaultAttributes;
++        this.createInstance = holder -> {
++            AttributeInstance instance = this.supplier.createInstance(this::onAttributeModified, holder);
++            return instance != null ? instance : new AttributeInstance(holder, this::onAttributeModified); // Handle potential null return
++        };
+     }
+ 
+     private void onAttributeModified(AttributeInstance instance) {
+@@ -50,7 +54,7 @@ public class AttributeMap {
+     }
+ 
+     public @Nullable AttributeInstance getInstance(Holder<Attribute> attribute) {
+-        return this.attributes.computeIfAbsent(attribute, holder -> this.supplier.createInstance(this::onAttributeModified, (Holder<Attribute>)holder));
++        return this.attributes.computeIfAbsent(attribute, createInstance);
+     }
+ 
+     public boolean hasAttribute(Holder<Attribute> attribute) {
