@@ -86,6 +86,9 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.syncCommands();
     }
 
+    @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
+    public static boolean lavaRiptide = false;
+
     @GlobalConfig(name = "disable-packet-limit", category = {"features"})
     public static boolean disablePacketLimit = false;
 
