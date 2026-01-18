@@ -86,6 +86,9 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.syncCommands();
     }
 
+    @GlobalConfig(name = "enable-books", category = {"features"})
+    public static boolean enableBooks = false;
+
     @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
     public static boolean lavaRiptide = false;
 

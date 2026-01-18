@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sat, 17 Jan 2026 19:18:26 -0800
+Subject: [PATCH] Pufferfish Option to Disable Books
+
+
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index c796253e86c4b25c3a87f1678ea194f8f60c06a3..d4d1fd6f147537130e5f90e71ea49ea1a5ed833e 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -1341,6 +1341,7 @@ public class ServerGamePacketListenerImpl
+ 
+     @Override
+     public void handleEditBook(ServerboundEditBookPacket packet) {
++        if (!gr1mly4memes.nitro.NitroConfig.enableBooks && !this.player.getBukkitEntity().hasPermission("nitro.usebooks")) return; // Nitro //Pufferfish
+         // Paper start - Book size limits
+         final io.papermc.paper.configuration.type.number.IntOr.Disabled pageMax = io.papermc.paper.configuration.GlobalConfiguration.get().itemValidation.bookSize.pageMax;
+         if (!this.cserver.isPrimaryThread() && pageMax.enabled()) {
