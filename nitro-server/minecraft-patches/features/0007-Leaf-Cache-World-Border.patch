@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sat, 17 Jan 2026 18:55:39 -0800
+Subject: [PATCH] Leaf Cache World Border
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 494f93e4869faac51bd668cc4028d89ff762c975..34f83e7f8208407e4c93a94fa9b5346d103094a9 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -231,6 +231,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+     public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
+     private final alternate.current.wire.WireHandler wireHandler = new alternate.current.wire.WireHandler(this); // Paper - optimize redstone (Alternate Current)
+     public boolean hasRidableMoveEvent = false; // Purpur - Ridables
++    private @Nullable WorldBorder worldBorder; // Leaf - Cache world border
+ 
+     @Override
+     public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
+@@ -2308,9 +2309,14 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+     }
+ 
+     @Override
+-    public WorldBorder getWorldBorder() {
++    public WorldBorder getWorldBorder() {// Leaf start - Cache world border
++        if (this.worldBorder != null) {
++            return this.worldBorder;
++        }
++        // Leaf end - Cache world border
+         WorldBorder worldBorder = this.getDataStorage().computeIfAbsent(WorldBorder.TYPE);
+         worldBorder.applyInitialSettings(this.levelData.getGameTime());
++        this.worldBorder = worldBorder; // Leaf - Cache world border
+         return worldBorder;
+     }
+ 
