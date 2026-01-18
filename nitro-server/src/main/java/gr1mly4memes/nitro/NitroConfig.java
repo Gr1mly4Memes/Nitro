@@ -114,6 +114,9 @@ public final class NitroConfig {
     @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
     public static boolean lavaRiptide = false; /* not even sure if it works */
 
+    @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
+    public static boolean disableMethodProfiler = true;
+
     @GlobalConfig(name = "disable-packet-limit", category = {"features"})
     public static boolean disablePacketLimit = false;
 
