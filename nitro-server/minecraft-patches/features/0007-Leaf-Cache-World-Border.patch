@@ -5,7 +5,7 @@ Subject: [PATCH] Leaf Cache World Border
 
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 494f93e4869faac51bd668cc4028d89ff762c975..34f83e7f8208407e4c93a94fa9b5346d103094a9 100644
+index 853bb92c034b6361ff8c55daf52f38a226fdae2c..7d66777261171840a74c6cb3f5b61ce03ce3b36c 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -231,6 +231,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -16,7 +16,7 @@ index 494f93e4869faac51bd668cc4028d89ff762c975..34f83e7f8208407e4c93a94fa9b5346d
  
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
-@@ -2308,9 +2309,14 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -2302,9 +2303,14 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
      }
  
      @Override

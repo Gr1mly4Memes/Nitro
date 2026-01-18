@@ -86,6 +86,19 @@ public final class NitroConfig {
         MinecraftServer.getServer().server.syncCommands();
     }
 
+    @GlobalConfig(name = "enable-async-mob-spawning", category = {"Optimizations"})
+    public static boolean enableAsyncMobSpawning = true;
+    // Runtime value (reload-safe)
+    public static boolean runtimeAsyncMobSpawning;
+    private static boolean initialized = false;
+    /** Called after config load (including reload) */
+    public static void postLoad() {
+        if (!initialized) {
+            initialized = true;
+            runtimeAsyncMobSpawning = enableAsyncMobSpawning;
+        }
+    }
+
     @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
     public static boolean enableSuffocationOptimization = true;
 
