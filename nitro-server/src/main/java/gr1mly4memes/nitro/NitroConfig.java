@@ -99,14 +99,20 @@ public final class NitroConfig {
         }
     }
 
+    @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
+    public static int maxProjectileLoadsPerTick = 10;
+
+    @GlobalConfig(name = "projectile.max-loads-per-projectile", category = {"Optimizations"})
+    public static int maxProjectileLoadsPerProjectile = 10;
+
     @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
     public static boolean enableSuffocationOptimization = true;
 
     @GlobalConfig(name = "enable-books", category = {"features"})
-    public static boolean enableBooks = false;
+    public static boolean enableBooks = true;
 
     @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
-    public static boolean lavaRiptide = false;
+    public static boolean lavaRiptide = false; /* not even sure if it works */
 
     @GlobalConfig(name = "disable-packet-limit", category = {"features"})
     public static boolean disablePacketLimit = false;

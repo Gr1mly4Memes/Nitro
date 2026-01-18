@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 18 Jan 2026 08:39:22 -0800
+Subject: [PATCH] Pufferfish Reduce Projectile Chunk Loading
+
+
+diff --git a/net/minecraft/world/entity/projectile/Projectile.java b/net/minecraft/world/entity/projectile/Projectile.java
+index 36479ed544ce812113c9a9c982a74a950cb9b26a..5774ee925ec5dfb0e772f74ca487307595e7a498 100644
+--- a/net/minecraft/world/entity/projectile/Projectile.java
++++ b/net/minecraft/world/entity/projectile/Projectile.java
+@@ -49,6 +49,34 @@ public abstract class Projectile extends Entity implements TraceableEntity {
+     protected Projectile(EntityType<? extends Projectile> type, Level level) {
+         super(type, level);
+     }
++    // Nitro // Pufferfish start
++    private static int loadedThisTick = 0;
++    private static int loadedTick;
++    private int loadedLifetime = 0;
++    @Override
++    public void setPos(double x, double y, double z) {
++        int currentTick = net.minecraft.server.MinecraftServer.currentTick;
++        if (loadedTick != currentTick) {
++            loadedTick = currentTick;
++            loadedThisTick = 0;
++        }
++        int previousX = Mth.floor(this.getX()) >> 4, previousZ = Mth.floor(this.getZ()) >> 4;
++        int newX = Mth.floor(x) >> 4, newZ = Mth.floor(z) >> 4;
++        if (previousX != newX || previousZ != newZ) {
++            boolean isLoaded = ((net.minecraft.server.level.ServerChunkCache) this.level().getChunkSource()).getChunkAtIfLoadedImmediately(newX, newZ) != null;
++            if (!isLoaded) {
++                if (Projectile.loadedThisTick > gr1mly4memes.nitro.NitroConfig.maxProjectileLoadsPerTick) {
++                    if (++this.loadedLifetime > gr1mly4memes.nitro.NitroConfig.maxProjectileLoadsPerProjectile) {
++                        this.discard();
++                    }
++                    return;
++                }
++                Projectile.loadedThisTick++;
++            }
++        }
++        super.setPos(x, y, z);
++    }
++    // Nitro // Pufferfish end
+ 
+     protected void setOwner(@Nullable EntityReference<Entity> owner) {
+         this.owner = owner;
