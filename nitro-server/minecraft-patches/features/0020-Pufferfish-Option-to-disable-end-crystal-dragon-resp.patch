@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 18 Jan 2026 10:26:33 -0800
+Subject: [PATCH] Pufferfish Option-to-disable-end-crystal-dragon-respawning
+
+
+diff --git a/net/minecraft/world/item/EndCrystalItem.java b/net/minecraft/world/item/EndCrystalItem.java
+index 6e4a3c9c090a68bf5785a01d815c275411859c7b..11e9059e23f8fa267120f43959ad36485af13ea5 100644
+--- a/net/minecraft/world/item/EndCrystalItem.java
++++ b/net/minecraft/world/item/EndCrystalItem.java
+@@ -50,7 +50,7 @@ public class EndCrystalItem extends Item {
+                         level.addFreshEntity(endCrystal);
+                         level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockPos);
+                         EndDragonFight dragonFight = ((ServerLevel)level).getDragonFight();
+-                        if (dragonFight != null) {
++                        if (dragonFight != null && gr1mly4memes.nitro.NitroConfig.allowEndCrystalRespawn) { // Nitro // Pufferfish
+                             dragonFight.tryRespawn(aboveBlockPos); // Paper - Perf: Do crystal-portal proximity check before entity lookup
+                         }
+                     }

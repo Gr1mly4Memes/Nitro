@@ -117,6 +117,9 @@ public final class NitroConfig {
     @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
     public static boolean disableMethodProfiler = true;
 
+    @GlobalConfig(name = "allow-end-crystal-respawn", category = {"Miscellaneous"})
+    public static boolean allowEndCrystalRespawn = true;
+
     @GlobalConfig(name = "disable-packet-limit", category = {"features"})
     public static boolean disablePacketLimit = false;
 
