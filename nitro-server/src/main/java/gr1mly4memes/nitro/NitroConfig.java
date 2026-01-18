@@ -98,6 +98,9 @@ public final class NitroConfig {
     // Nitro end - features
 
     // Nitro start - Optimizations
+    @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
+    public static boolean useCompactBitStorage = true;
+
     @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
     public static int maxProjectileLoadsPerTick = 10;
 

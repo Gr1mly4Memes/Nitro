@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Fri, 9 Jan 2026 20:13:30 -0800
+Subject: [PATCH] Make Mth.SIN public
+
+
+diff --git a/net/minecraft/util/Mth.java b/net/minecraft/util/Mth.java
+index dbd26242a523ef0a29ba2255238852f1dca76b8f..50de03f9293939425feba058a0567ccae8bde09e 100644
+--- a/net/minecraft/util/Mth.java
++++ b/net/minecraft/util/Mth.java
+@@ -31,7 +31,7 @@ public class Mth {
+     private static final int SIN_MASK = 65535;
+     private static final int COS_OFFSET = 16384;
+     private static final double SIN_SCALE = 10430.378350470453;
+-    private static final float[] SIN = Util.make(new float[65536], floats -> {
++    public static final float[] SIN = Util.make(new float[65536], floats -> {
+         for (int i1 = 0; i1 < floats.length; i1++) {
+             floats[i1] = (float)Math.sin(i1 / 10430.378350470453);
+         }

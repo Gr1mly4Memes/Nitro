@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Thu, 8 Jan 2026 19:00:08 -0800
+Subject: [PATCH] lithium: combined_heightmap_update
+
+
+diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
+index ac245b0cfe35be4bfb583837938b30ede2333e9e..10c280d3dfd29dcac0591812dd006404a3db7170 100644
+--- a/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -401,10 +401,13 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+                 return null;
+             } else {
+                 Block block = state.getBlock();
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR).update(i, y, i2, state);
+-                this.heightmaps.get(Heightmap.Types.WORLD_SURFACE).update(i, y, i2, state);
++                // Nitro start - lithium: combined_heightmap_update
++                Heightmap heightmap0 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING);
++                Heightmap heightmap1 = this.heightmaps.get(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
++                Heightmap heightmap2 = this.heightmaps.get(Heightmap.Types.OCEAN_FLOOR);
++                Heightmap heightmap3 = this.heightmaps.get(Heightmap.Types.WORLD_SURFACE);
++                net.caffeinemc.mods.lithium.common.world.chunk.heightmap.CombinedHeightmapUpdate.updateHeightmaps(heightmap0, heightmap1, heightmap2, heightmap3, this, i, y, i2, state);
++                // Nitro end - lithium: combined_heightmap_update
+                 boolean hasOnlyAir1 = section.hasOnlyAir();
+                 if (hasOnlyAir != hasOnlyAir1) {
+                     this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, hasOnlyAir1);
+diff --git a/net/minecraft/world/level/levelgen/Heightmap.java b/net/minecraft/world/level/levelgen/Heightmap.java
+index 25c537496ccea6fe27111b21fe2e47b3f6a914a1..9ff7035feea32a74b9a3a3748e4ebda24e5598be 100644
+--- a/net/minecraft/world/level/levelgen/Heightmap.java
++++ b/net/minecraft/world/level/levelgen/Heightmap.java
+@@ -123,6 +123,12 @@ public class Heightmap {
+         this.data.set(getIndex(x, z), value - this.chunk.getMinY());
+     }
+ 
++    // Nitro start - lithium: combined_heightmap_update
++    public final Predicate<BlockState> isOpaque() {
++        return this.isOpaque;
++    }
++    // Nitro end - lithium: combined_heightmap_update
++
+     public void setRawData(ChunkAccess chunk, Heightmap.Types type, long[] data) {
+         long[] raw = this.data.getRaw();
+         if (raw.length == data.length) {

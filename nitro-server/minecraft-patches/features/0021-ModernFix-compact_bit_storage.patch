@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Thu, 8 Jan 2026 19:00:08 -0800
+Subject: [PATCH] ModernFix: compact_bit_storage
+
+
+diff --git a/net/minecraft/world/level/chunk/PalettedContainer.java b/net/minecraft/world/level/chunk/PalettedContainer.java
+index 862db0785a7246d4001f3063246a795bdb5cd4d4..35acff7dc6002e327c74110147d41a3f55053045 100644
+--- a/net/minecraft/world/level/chunk/PalettedContainer.java
++++ b/net/minecraft/world/level/chunk/PalettedContainer.java
+@@ -281,6 +281,28 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+             data.palette.read(buffer, this.strategy.globalMap());
+             buffer.readFixedSizeLongArray(data.storage.getRaw());
+             this.data = data;
++            // Nitro start - ModernFix: compact_bit_storage
++            if (gr1mly4memes.nitro.NitroConfig.useCompactBitStorage && _byte > 1) {
++                long[] storageArray = this.data.storage.getRaw();
++                boolean empty = true;
++                for (long l : storageArray) {
++                    if (l != 0) {
++                        empty = false;
++                        break;
++                    }
++                }
++                if (empty && storageArray.length > 0) {
++                    T value;
++                    try {
++                        value = this.data.palette.valueFor(0);
++                    } catch (RuntimeException e) {
++                        return;
++                    }
++                    this.data = this.createOrReuseData(null, 0);
++                    this.data.palette.idFor(value, this);
++                }
++            }
++            // Nitro end - ModernFix: compact_bit_storage
+             this.addPresetValues(); // Paper - Anti-Xray - Add preset values (inefficient, but this isn't used by the server)
+             this.updateData(this.data); // Paper - optimise palette reads
+         } finally {
