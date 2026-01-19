@@ -5,10 +5,10 @@ Subject: [PATCH] lithium: combined_heightmap_update
 
 
 diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
-index ac245b0cfe35be4bfb583837938b30ede2333e9e..10c280d3dfd29dcac0591812dd006404a3db7170 100644
+index 54802b358b5e6d0bfde09713de0ddb20f015ffd5..43779c9049d9fc08f37b62ee23c312d4ac936a78 100644
 --- a/net/minecraft/world/level/chunk/LevelChunk.java
 +++ b/net/minecraft/world/level/chunk/LevelChunk.java
-@@ -401,10 +401,13 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+@@ -392,10 +392,13 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
                  return null;
              } else {
                  Block block = state.getBlock();
@@ -27,7 +27,7 @@ index ac245b0cfe35be4bfb583837938b30ede2333e9e..10c280d3dfd29dcac0591812dd006404
                  if (hasOnlyAir != hasOnlyAir1) {
                      this.level.getChunkSource().getLightEngine().updateSectionStatus(pos, hasOnlyAir1);
 diff --git a/net/minecraft/world/level/levelgen/Heightmap.java b/net/minecraft/world/level/levelgen/Heightmap.java
-index 25c537496ccea6fe27111b21fe2e47b3f6a914a1..9ff7035feea32a74b9a3a3748e4ebda24e5598be 100644
+index 25c537496ccea6fe27111b21fe2e47b3f6a914a1..1247f67376067d5054078cc2721f238cc6871471 100644
 --- a/net/minecraft/world/level/levelgen/Heightmap.java
 +++ b/net/minecraft/world/level/levelgen/Heightmap.java
 @@ -123,6 +123,12 @@ public class Heightmap {

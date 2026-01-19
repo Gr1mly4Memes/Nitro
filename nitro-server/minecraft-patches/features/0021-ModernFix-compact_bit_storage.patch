@@ -5,10 +5,10 @@ Subject: [PATCH] ModernFix: compact_bit_storage
 
 
 diff --git a/net/minecraft/world/level/chunk/PalettedContainer.java b/net/minecraft/world/level/chunk/PalettedContainer.java
-index 862db0785a7246d4001f3063246a795bdb5cd4d4..35acff7dc6002e327c74110147d41a3f55053045 100644
+index 7c8f8772a6fba04dbafdb5dbf8098b6ebce6d6f2..77148bda4cd6f72ae389401f92a38900fc3c46bd 100644
 --- a/net/minecraft/world/level/chunk/PalettedContainer.java
 +++ b/net/minecraft/world/level/chunk/PalettedContainer.java
-@@ -281,6 +281,28 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -264,6 +264,28 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
              data.palette.read(buffer, this.strategy.globalMap());
              buffer.readFixedSizeLongArray(data.storage.getRaw());
              this.data = data;

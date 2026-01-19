@@ -3,8 +3,9 @@ From: Gr1mly4Memes <alagozantoni14@gmail.com>
 Date: Sun, 18 Jan 2026 10:26:33 -0800
 Subject: [PATCH] lithium: faster chunk serialization
 
+
 diff --git a/net/minecraft/util/BitStorage.java b/net/minecraft/util/BitStorage.java
-index 02502d50f0255f5bbcc0ecb965abb48cc1a112da..89c65b8e4b99b78ec847f0ef958166a645ed4324 100644
+index 02502d50f0255f5bbcc0ecb965abb48cc1a112da..84cf85ce1dc8c98326427e8b432dd809940c086a 100644
 --- a/net/minecraft/util/BitStorage.java
 +++ b/net/minecraft/util/BitStorage.java
 @@ -38,4 +38,6 @@ public interface BitStorage extends ca.spottedleaf.moonrise.patches.block_counti
@@ -15,7 +16,7 @@ index 02502d50f0255f5bbcc0ecb965abb48cc1a112da..89c65b8e4b99b78ec847f0ef958166a6
 +    <T> void compact(net.minecraft.world.level.chunk.Palette<T> srcPalette, net.minecraft.world.level.chunk.Palette<T> dstPalette, short[] out, net.minecraft.world.level.chunk.PalettedContainer<T> resizeHandler); // Nitro - lithium: faster chunk serialization
  }
 diff --git a/net/minecraft/util/SimpleBitStorage.java b/net/minecraft/util/SimpleBitStorage.java
-index 08af7687cdbf395116c2ae0c40befa518b796846..3c754d6d012ce2f1530e5bccbc27b02cb7c41ca3 100644
+index 08af7687cdbf395116c2ae0c40befa518b796846..15a1df7a262c9a414891dad2bb3259f3959909c4 100644
 --- a/net/minecraft/util/SimpleBitStorage.java
 +++ b/net/minecraft/util/SimpleBitStorage.java
 @@ -465,4 +465,44 @@ public class SimpleBitStorage implements BitStorage {
@@ -64,7 +65,7 @@ index 08af7687cdbf395116c2ae0c40befa518b796846..3c754d6d012ce2f1530e5bccbc27b02c
 +    // Nitro end - lithium: faster chunk serialization
  }
 diff --git a/net/minecraft/util/ZeroBitStorage.java b/net/minecraft/util/ZeroBitStorage.java
-index 09fd99c9cbd23b5f3c899bfb00c9b89651948ed8..6fdd51c767399bce29dce1ecea2e13072a6f4d00 100644
+index 09fd99c9cbd23b5f3c899bfb00c9b89651948ed8..b1e6ac3c8c10d042cd7716b77c8802435d989cec 100644
 --- a/net/minecraft/util/ZeroBitStorage.java
 +++ b/net/minecraft/util/ZeroBitStorage.java
 @@ -80,4 +80,6 @@ public class ZeroBitStorage implements BitStorage {
@@ -75,7 +76,7 @@ index 09fd99c9cbd23b5f3c899bfb00c9b89651948ed8..6fdd51c767399bce29dce1ecea2e1307
 +    @Override public <T> void compact(net.minecraft.world.level.chunk.Palette<T> srcPalette, net.minecraft.world.level.chunk.Palette<T> dstPalette, short[] out, net.minecraft.world.level.chunk.PalettedContainer<T> resizeHandler) { } // Nitro - lithium: faster chunk serialization
  }
 diff --git a/net/minecraft/world/level/chunk/PalettedContainer.java b/net/minecraft/world/level/chunk/PalettedContainer.java
-index 7c8f8772a6fba04dbafdb5dbf8098b6ebce6d6f2..862db0785a7246d4001f3063246a795bdb5cd4d4 100644
+index 77148bda4cd6f72ae389401f92a38900fc3c46bd..21a1b17ba6b06dc2f3539877dd728a80c3d8f54c 100644
 --- a/net/minecraft/world/level/chunk/PalettedContainer.java
 +++ b/net/minecraft/world/level/chunk/PalettedContainer.java
 @@ -29,6 +29,23 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
@@ -102,7 +103,7 @@ index 7c8f8772a6fba04dbafdb5dbf8098b6ebce6d6f2..862db0785a7246d4001f3063246a795b
      public void acquire() {
          // this.threadingDetector.checkAndLock(); // Paper - disable this - use proper synchronization
      }
-@@ -338,29 +355,49 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -360,29 +377,49 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
      public synchronized PalettedContainerRO.PackedData<T> pack(Strategy<T> strategy) { // Paper - synchronize
          this.acquire();
  
@@ -168,7 +169,7 @@ index 7c8f8772a6fba04dbafdb5dbf8098b6ebce6d6f2..862db0785a7246d4001f3063246a795b
      }
  
      private static <T> int[] reencodeContents(BitStorage bitStorage, Palette<T> oldPalette, Palette<T> newPalette) {
-@@ -410,13 +447,31 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -432,13 +469,31 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
  
      @Override
      public void count(PalettedContainer.CountConsumer<T> countConsumer) {
