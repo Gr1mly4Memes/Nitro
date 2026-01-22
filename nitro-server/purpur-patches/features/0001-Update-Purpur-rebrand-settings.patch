@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: NONPLAYT <76615486+NONPLAYT@users.noreply.github.com>
-Date: Fri, 11 Jul 2025 20:26:35 +0300
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 18 Jan 2026 10:36:47 -0800
 Subject: [PATCH] Update Purpur rebrand settings
 
 
@@ -12,7 +12,7 @@ index 31bf765d2dfa75d854f7f8e55bab7792ace843ab..e5244941506e99a8a2450e798483fed6
          deathMessageOnlyBroadcastToAffectedPlayer = getBoolean("settings.broadcasts.death.only-broadcast-to-affected-player", deathMessageOnlyBroadcastToAffectedPlayer);
      }
  
-+    // DivineMC start - Update Purpur rebrand settings
++    // Nitro start - Update Purpur rebrand settings
      public static String serverModName = io.papermc.paper.ServerBuildInfo.buildInfo().brandName();
 -    private static void serverModName() {
 -        serverModName = getString("settings.server-mod-name", serverModName);
@@ -24,7 +24,7 @@ index 31bf765d2dfa75d854f7f8e55bab7792ace843ab..e5244941506e99a8a2450e798483fed6
 +        serverGUIName = getString("settings.rebrand.server-gui-name", serverGUIName);
 +        f3Name = getString("settings.rebrand.f3-name", f3Name);
 +    }
-+    // DivineMC end - Update Purpur rebrand settings
++    // Nitro end - Update Purpur rebrand settings
  
      public static double laggingThreshold = 19.0D;
      private static void tickLoopSettings() {
