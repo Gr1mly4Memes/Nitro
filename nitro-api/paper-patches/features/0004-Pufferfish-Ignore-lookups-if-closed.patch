@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Fri, 30 Jan 2026 09:44:41 -0800
+Subject: [PATCH] Pufferfish-Ignore-lookups-if-closed
+
+
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index c53cac5cbaa65a1c984043f69d159118c80fa6dd..7be96632101fff252f517bc5bf9c59ecf1b0a4f8 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -50,6 +50,7 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+     private java.util.logging.Logger logger; // Paper - add field
+     private io.papermc.paper.plugin.provider.classloader.PluginClassLoaderGroup classLoaderGroup; // Paper
+     public io.papermc.paper.plugin.provider.entrypoint.DependencyContext dependencyContext; // Paper
++    private boolean closed = false; // Nitro // Pufferfish
+ 
+     static {
+         ClassLoader.registerAsParallelCapable();
+@@ -215,7 +216,7 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+         }
+         Class<?> result = classes.get(name);
+ 
+-        if (result == null) {
++        if (result == null && !this.closed) { // Nitro // Pufferfish
+             String path = name.replace('.', '/').concat(".class");
+             // Add details to zip file errors - help debug classloading
+             JarEntry entry;
+@@ -271,6 +272,7 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+             this.setClass(name, result); // Paper
+         }
+ 
++        if (result == null) throw new ClassNotFoundException(name); // Nitro // Pufferfish
+         return result;
+     }
+ 
+@@ -285,6 +287,7 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+             // Paper end
+             super.close();
+         } finally {
++            this.closed = true; // Nitro // Pufferfish
+             jar.close();
+         }
+     }

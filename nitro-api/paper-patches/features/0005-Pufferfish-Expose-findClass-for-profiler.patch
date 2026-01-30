@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Fri, 30 Jan 2026 09:46:37 -0800
+Subject: [PATCH] Pufferfish-Expose-findClass-for-profiler
+
+
+diff --git a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+index 7be96632101fff252f517bc5bf9c59ecf1b0a4f8..54363bb682b64613935d8063a17a567c367e7dbb 100644
+--- a/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java
+@@ -209,6 +209,7 @@ public final class PluginClassLoader extends URLClassLoader implements io.paperm
+         throw new ClassNotFoundException(name);
+     }
+ 
++    public boolean _airplane_hasClass(@NotNull String name) { return this.classes.containsKey(name); } // Nitro // Pufferfish
+     @Override
+     protected Class<?> findClass(String name) throws ClassNotFoundException {
+         if (name.startsWith("org.bukkit.") || name.startsWith("net.minecraft.")) {
