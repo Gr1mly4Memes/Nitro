@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Thu, 29 Jan 2026 19:31:40 -0800
+Subject: [PATCH] Delete-ReloadCommand
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 2460ea86f11abc52aa06d81185c8b4395e01b5be..79d9a451a9439bb5cf90bbb83ac416b5734b1e49 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -969,11 +969,6 @@ public final class CraftServer implements Server {
+ 
+     @Override
+     public void reload() {
+-        // Paper start - lifecycle events
+-        if (io.papermc.paper.plugin.lifecycle.event.LifecycleEventRunner.INSTANCE.blocksPluginReloading()) {
+-            throw new IllegalStateException(org.bukkit.command.defaults.ReloadCommand.RELOADING_DISABLED_MESSAGE);
+-        }
+-        // Paper end - lifecycle events
+         org.spigotmc.WatchdogThread.hasStarted = false; // Paper - Disable watchdog early timeout on reload
+         this.reloadCount++;
+         this.configuration = YamlConfiguration.loadConfiguration(this.getConfigFile());
