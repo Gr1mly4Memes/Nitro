@@ -1,42 +1,38 @@
-package org.bxteam.divinemc.command.subcommands;
+package gr1mly4memes.nitro.commands.subcommands;
 
 import ca.spottedleaf.moonrise.common.time.TickData;
+import gr1mly4memes.nitro.commands.NitroCommand;
+import gr1mly4memes.nitro.commands.NitroSubcommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
-import org.bxteam.divinemc.config.DivineConfig;
-import org.bxteam.divinemc.command.DivineCommand;
-import org.bxteam.divinemc.command.DivineSubCommandPermission;
+import gr1mly4memes.nitro.NitroConfig;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.framework.qual.DefaultQualifier;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.LongSummaryStatistics;
+import java.util.*;
 import java.util.stream.LongStream;
 
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 @DefaultQualifier(NonNull.class)
-public final class MSPTCommand extends DivineSubCommandPermission {
+public final class MSPTCommand implements NitroSubcommand {
     public static final String LITERAL_ARGUMENT = "mspt";
-    public static final String PERM = DivineCommand.BASE_PERM + "." + LITERAL_ARGUMENT;
+    public static final String PERM = "bukkit.command.nitro." + LITERAL_ARGUMENT;
     private static final DecimalFormat DF = new DecimalFormat("########0.0");
     private static final Component SLASH = Component.text("/");
 
     public MSPTCommand() {
-        super(PERM, PermissionDefault.TRUE);
+        // Constructor intentionally left empty
     }
 
     @Override
     public boolean execute(CommandSender sender, String subCommand, String[] args) {
-        if (!DivineConfig.AsyncCategory.enableParallelWorldTicking) {
+        if (!NitroConfig.enableParallelWorldTicking) {
             sender.sendMessage(Component.text("Per-world MSPT tracking is only available when parallel world ticking is enabled.", RED));
             sender.sendMessage(Component.text("Please enable it in divinemc.yml to use this command.", GRAY));
             return true;
@@ -135,7 +131,7 @@ public final class MSPTCommand extends DivineSubCommandPermission {
         return Arrays.asList(getColoredValue(avg), getColoredValue(min), getColoredValue(max));
     }
 
-    private static List<Component> evalFromTickData(ca.spottedleaf.moonrise.common.time.TickData tickData, long tickInterval) {
+    private static List<Component> evalFromTickData(TickData tickData, long tickInterval) {
         TickData.TickReportData report = tickData.generateTickReport(null, System.nanoTime(), tickInterval);
 
         if (report == null) {
@@ -182,7 +178,7 @@ public final class MSPTCommand extends DivineSubCommandPermission {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String subCommand, String[] args) {
-        if (!DivineConfig.AsyncCategory.enableParallelWorldTicking) {
+        if (!NitroConfig.enableParallelWorldTicking) {
             return Collections.emptyList();
         }
         if (args.length == 1) {

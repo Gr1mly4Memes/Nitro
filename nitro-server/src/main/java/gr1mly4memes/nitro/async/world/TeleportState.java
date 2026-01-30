@@ -1,4 +1,4 @@
-package org.bxteam.divinemc.async.world;
+package gr1mly4memes.nitro.async.world;
 
 public enum TeleportState {
     INACTIVE,

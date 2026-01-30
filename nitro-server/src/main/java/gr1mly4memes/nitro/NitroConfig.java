@@ -208,13 +208,46 @@ public final class NitroConfig {
     }
 
     // Nitro end - Miscellaneous
-    @GlobalConfig(name = "lava-riptide", category = {"Miscellaneous"})
-    public static boolean lavaRiptide = false; /* not even sure if it works */
-
     @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
     public static boolean disableMethodProfiler = true;
 
     @GlobalConfig(name = "allow-end-crystal-respawn", category = {"Miscellaneous"})
     public static boolean allowEndCrystalRespawn = true;
     // Nitro end - Miscellaneous
+
+    // Nitro start - Parallel World Ticking
+    @GlobalConfig(name = "enable-parallel-world-ticking", category = {"PWT"})
+    public static boolean enableParallelWorldTicking = false;
+    @GlobalConfig(name = "parallel-thread-count", category = {"PWT"})
+    public static int parallelThreadCount = 4;
+    @GlobalConfig(name = "log-container-creation-stacktraces", category = {"PWT"})
+    public static boolean logContainerCreationStacktraces = false;
+    @GlobalConfig(name = "disable-hard-throw", category = {"PWT"})
+    public static boolean disableHardThrow = false;
+    @GlobalConfig(name = "use-per-world-tps-bar", category = {"PWT"})
+    public static boolean usePerWorldTpsBar = true;
+    @GlobalConfig(name = "show-tps-of-server-instead-of-world", category = {"PWT"})
+    public static boolean showTPSOfServerInsteadOfWorld = true;
+    // Nitro end - Parallel World Ticking
+
+    // Nitro start - Lag compensation
+    @GlobalConfig(name = "lag-compensation-enabled", category = {"Lag Compensation"})
+    public static boolean lagCompensationEnabled = true;
+    @GlobalConfig(name = "block-entity-acceleration", category = {"Lag Compensation"})
+    public static boolean blockEntityAcceleration = false;
+    @GlobalConfig(name = "block-breaking-acceleration", category = {"Lag Compensation"})
+    public static boolean blockBreakingAcceleration = true;
+    @GlobalConfig(name = "eating-acceleration", category = {"Lag Compensation"})
+    public static boolean eatingAcceleration = true;
+    @GlobalConfig(name = "potion-effect-acceleration", category = {"Lag Compensation"})
+    public static boolean potionEffectAcceleration = true;
+    @GlobalConfig(name = "fluid-acceleration", category = {"Lag Compensation"})
+    public static boolean fluidAcceleration = true;
+    @GlobalConfig(name = "pickup-acceleration", category = {"Lag Compensation"})
+    public static boolean pickupAcceleration = true;
+    @GlobalConfig(name = "portal-acceleration", category = {"Lag Compensation"})
+    public static boolean portalAcceleration = true;
+    @GlobalConfig(name = "time-acceleration", category = {"Lag Compensation"})
+    public static boolean timeAcceleration = true;
+    // Nitro end - Lag compensation
 }

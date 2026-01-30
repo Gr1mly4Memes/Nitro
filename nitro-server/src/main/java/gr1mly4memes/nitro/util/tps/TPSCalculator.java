@@ -1,4 +1,4 @@
-package org.bxteam.divinemc.util.tps;
+package gr1mly4memes.nitro.util.tps;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

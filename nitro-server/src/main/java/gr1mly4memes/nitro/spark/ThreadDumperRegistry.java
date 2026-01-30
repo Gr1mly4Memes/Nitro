@@ -1,4 +1,4 @@
-package org.bxteam.divinemc.spark;
+package gr1mly4memes.nitro.spark;
 
 import me.lucko.spark.paper.common.sampler.ThreadDumper;
 import me.lucko.spark.paper.common.util.ThreadFinder;

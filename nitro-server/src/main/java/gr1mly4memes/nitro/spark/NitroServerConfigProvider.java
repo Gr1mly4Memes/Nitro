@@ -1,12 +1,8 @@
-package org.bxteam.divinemc.spark;
+package gr1mly4memes.nitro.spark;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import me.lucko.spark.paper.common.platform.serverconfig.ConfigParser;
 import me.lucko.spark.paper.common.platform.serverconfig.ExcludedConfigFilter;
 import me.lucko.spark.paper.common.platform.serverconfig.PropertiesConfigParser;
@@ -17,6 +13,7 @@ import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,11 +23,11 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DivineServerConfigProvider extends ServerConfigProvider {
+public class NitroServerConfigProvider extends ServerConfigProvider {
     private static final Map<String, ConfigParser> FILES;
     private static final Collection<String> HIDDEN_PATHS;
 
-    public DivineServerConfigProvider() {
+    public NitroServerConfigProvider() {
         super(FILES, HIDDEN_PATHS);
     }
 

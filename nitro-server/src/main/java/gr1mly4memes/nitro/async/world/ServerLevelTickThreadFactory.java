@@ -1,7 +1,7 @@
-package org.bxteam.divinemc.async.world;
+package gr1mly4memes.nitro.async.world;
 
 import ca.spottedleaf.moonrise.common.util.TickThread;
-import org.bxteam.divinemc.spark.ThreadDumperRegistry;
+import gr1mly4memes.nitro.spark.ThreadDumperRegistry;
 
 import java.util.concurrent.ThreadFactory;
 

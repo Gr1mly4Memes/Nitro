@@ -1,4 +1,4 @@
-package org.bxteam.divinemc.util.tps;
+package gr1mly4memes.nitro.util.tps;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;

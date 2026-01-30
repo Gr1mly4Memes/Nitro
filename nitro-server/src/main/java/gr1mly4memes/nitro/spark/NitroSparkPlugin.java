@@ -1,12 +1,6 @@
-package org.bxteam.divinemc.spark;
+package gr1mly4memes.nitro.spark;
 
-import me.lucko.spark.paper.PaperClassSourceLookup;
-import me.lucko.spark.paper.PaperCommandSender;
-import me.lucko.spark.paper.PaperPlatformInfo;
-import me.lucko.spark.paper.PaperPlayerPingProvider;
-import me.lucko.spark.paper.PaperTickHook;
-import me.lucko.spark.paper.PaperTickReporter;
-import me.lucko.spark.paper.PaperWorldInfoProvider;
+import me.lucko.spark.paper.*;
 import me.lucko.spark.paper.api.Compatibility;
 import me.lucko.spark.paper.api.PaperClassLookup;
 import me.lucko.spark.paper.api.PaperScheduler;
@@ -36,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class DivineSparkPlugin implements PaperSparkModule, SparkPlugin {
+public class NitroSparkPlugin implements PaperSparkModule, SparkPlugin {
     private final Server server;
     private final Logger logger;
     private final PaperScheduler scheduler;
@@ -46,7 +40,7 @@ public class DivineSparkPlugin implements PaperSparkModule, SparkPlugin {
     private final ThreadDumper gameThreadDumper;
     private final SparkPlatform platform;
 
-    public DivineSparkPlugin(Server server, Logger logger, PaperScheduler scheduler, PaperClassLookup classLookup) {
+    public NitroSparkPlugin(Server server, Logger logger, PaperScheduler scheduler, PaperClassLookup classLookup) {
         this.server = server;
         this.logger = logger;
         this.scheduler = scheduler;
@@ -58,7 +52,7 @@ public class DivineSparkPlugin implements PaperSparkModule, SparkPlugin {
     }
 
     public static @NotNull PaperSparkModule create(Compatibility compatibility, Server server, Logger logger, PaperScheduler scheduler, PaperClassLookup classLookup) {
-        return new DivineSparkPlugin(server, logger, scheduler, classLookup);
+        return new NitroSparkPlugin(server, logger, scheduler, classLookup);
     }
 
     public void enable() {
@@ -163,7 +157,7 @@ public class DivineSparkPlugin implements PaperSparkModule, SparkPlugin {
     }
 
     public ServerConfigProvider createServerConfigProvider() {
-        return new DivineServerConfigProvider();
+        return new NitroServerConfigProvider();
     }
 
     public WorldInfoProvider createWorldInfoProvider() {

@@ -1,7 +1,7 @@
-package org.bxteam.divinemc.util;
+package gr1mly4memes.nitro.util;
 
 import com.mojang.logging.LogUtils;
-import org.bxteam.divinemc.spark.ThreadDumperRegistry;
+import gr1mly4memes.nitro.spark.ThreadDumperRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
