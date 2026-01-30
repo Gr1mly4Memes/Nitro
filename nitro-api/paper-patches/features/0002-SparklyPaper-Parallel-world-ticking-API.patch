@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Tue, 27 Jan 2026 19:55:56 -0800
+Subject: [PATCH] SparklyPaper-Parallel-world-ticking-API
+
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index b785e64750a16fb3fe98a83209e50652a263dd08..67b1b7484159e990096f1871fffd4d67edd02e2a 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2901,4 +2901,14 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+     @Deprecated
+     void clearBlockHighlights();
+     // Purpur end - Debug Marker API
++    // Nitro start - Parallel world ticking
++    /**
++     * Returns whether the software has the Parallel World Ticking feature enabled
++     *
++     * @return If the Parallel World Ticking feature is enabled
++     */
++public default boolean isParallelWorldTickingEnabled() {
++            return false;
++        }
++    // Nitro end - Parallel world ticking
+ }
+diff --git a/src/main/java/org/bukkit/World.java b/src/main/java/org/bukkit/World.java
+index b5ffb6317914e2bbf7267e1d1afb82463bf57278..947734dac6613653a70a6ce19ec7c37f52ac356b 100644
+--- a/src/main/java/org/bukkit/World.java
++++ b/src/main/java/org/bukkit/World.java
+@@ -4713,4 +4713,22 @@ public interface World extends RegionAccessor, WorldInfo, PluginMessageRecipient
+             }
+         }
+     }
++    // Nitro start - Parallel world ticking
++    /**
++     * Get a sample of the world last tick times (in nanos)
++     *
++     * @return A sample of the world last tick times (in nanos)
++     */
++public default long @NotNull [] getTickTimes() {
++            return new long[0];
++        }
++    /**
++     * Get the world's average tick time (in millis)
++     *
++     * @return World's local average tick time (in millis)
++     */
++public default double getAverageTickTime () {
++            return 0.0;
++        }
++    // Nitro end - Parallel world ticking
+ }

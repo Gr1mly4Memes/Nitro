@@ -3,8 +3,9 @@ From: Gr1mly4Memes <alagozantoni14@gmail.com>
 Date: Sun, 18 Jan 2026 17:22:40 -0800
 Subject: [PATCH] C2ME Optimize noise generation
 
+
 diff --git a/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java b/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
-index fb11a2eea540d55e50eab59f9857ca5d99f556f8..dcc1a3f8b611c9f103b848db90b077b984b60ada 100644
+index fb11a2eea540d55e50eab59f9857ca5d99f556f8..2a0a4ed192ba9a834e3d713cf5277834b18071f5 100644
 --- a/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
 +++ b/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
 @@ -11,6 +11,27 @@ public final class ImprovedNoise {
@@ -173,7 +174,7 @@ index fb11a2eea540d55e50eab59f9857ca5d99f556f8..dcc1a3f8b611c9f103b848db90b077b9
  
      private double sampleWithDerivative(int gridX, int gridY, int gridZ, double deltaX, double deltaY, double deltaZ, double[] noiseValues) {
 diff --git a/net/minecraft/world/level/levelgen/synth/PerlinNoise.java b/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
-index 4c5268704af9b6a88c00878459254851c0592da1..240babcbc733a1d13d4cb11ece765be0ee1b1c1a 100644
+index 4c5268704af9b6a88c00878459254851c0592da1..c818f579e319a8ef9fd2c8c467e8998df597a5a1 100644
 --- a/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
 +++ b/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
 @@ -26,6 +26,7 @@ public class PerlinNoise {

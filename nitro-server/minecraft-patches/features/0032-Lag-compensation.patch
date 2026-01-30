@@ -1,0 +1,297 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 26 Jan 2026 19:41:47 -0800
+Subject: [PATCH] Lag-compensation
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 87c5fc960d87732c636aa682d955505f1c2b43ac..815ebeea6642f872e79b88cca1ce818d8337250c 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -311,6 +311,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     public boolean lagging = false; // Purpur - Lagging threshold
+     protected boolean upnp = false; // Purpur - UPnP Port Forwarding
+     public java.util.concurrent.Semaphore serverLevelTickingSemaphore = null; // Nitro - Parallel world ticking
++    public final gr1mly4memes.nitro.util.tps.TPSCalculator tpsCalculator = new gr1mly4memes.nitro.util.tps.TPSCalculator(); // Nitro - Lag compensation
+     // Paper start - improve tick loop
+     public final ca.spottedleaf.moonrise.common.time.TickData tickTimes1s  = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(1L));
+     public final ca.spottedleaf.moonrise.common.time.TickData tickTimes5s  = new ca.spottedleaf.moonrise.common.time.TickData(java.util.concurrent.TimeUnit.SECONDS.toNanos(5L));
+@@ -1664,6 +1665,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         }
+ 
+         this.server.spark.tickStart(); // Paper - spark
++        this.tpsCalculator.doTick(); // Nitro - Lag compensation
+         new com.destroystokyo.paper.event.server.ServerTickStartEvent(this.tickCount+1).callEvent(); // Paper - Server Tick Events
+         this.tickCount++;
+         this.tickRateManager.tick();
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index b11e24ef1e6ff4a6f2660dba2f40711e7dbdf466..d811c63798d4a3daff30fe0ff5228f2310c880ca 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -233,6 +233,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+     public boolean hasRidableMoveEvent = false; // Purpur - Ridables
+     public net.minecraft.world.item.ItemStack ominousBanner; // DivineMC - Optimize Raids
+     public java.util.concurrent.ExecutorService tickExecutor; // Nitro - Parallel world ticking
++    public gr1mly4memes.nitro.util.tps.TPSCalculator tpsCalculator = new gr1mly4memes.nitro.util.tps.TPSCalculator(); // Nitro - Lag Compensation
+ 
+     @Override
+     public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
+@@ -826,6 +827,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+             }
+         }
+ 
++        this.tpsCalculator.doTick(); // Nitro - Lag compensation
++
+         this.updateSkyBrightness();
+         if (runsNormally) {
+             this.tickTime();
+@@ -943,10 +946,16 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+                     this.setDayTime(this.preciseTime);
+                 } else
+                 // Purpur end - Configurable daylight cycle
+-                this.setDayTime(this.levelData.getDayTime() + 1L);
++                    this.setDayTime(lagCompensation(this.levelData.getDayTime()) + 1L); // Nitro - Lag compensation
+             }
+         }
+     }
++    // Nitro start - Lag compensation
++    private long lagCompensation(long original) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.timeAcceleration) return original;
++        return original + this.tpsCalculator.applicableMissedTicks();
++    }
++    // Nitro end - Lag compensation
+ 
+     public void setDayTime(long time) {
+         this.serverLevelData.setDayTime(time);
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index 874ef84e745efa51b3b58634e85a6cb39de74828..6611fc0df3fa14ca2c9aee667d46b26549910b30 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -524,6 +524,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+             }
+         }
+ 
++        lagCompensation(); // Nitro - Lag Compensation
+         this.tickEffects();
+         this.yHeadRotO = this.yHeadRot;
+         this.yBodyRotO = this.yBodyRot;
+@@ -531,6 +532,15 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+         this.xRotO = this.getXRot();
+         profilerFiller.pop();
+     }
++    // Nitro start - Lag Compensation
++    private void lagCompensation() {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.potionEffectAcceleration) return;
++        if (this.level().isClientSide()) return;
++        for (int i = 0; i < ((ServerLevel) this.level()).tpsCalculator.applicableMissedTicks(); i++) {
++            tickEffects();
++        }
++    }
++    // Nitro end - Lag Compensation
+ 
+     protected boolean shouldTakeDrowningDamage() {
+         return this.getAirSupply() <= -this.level().purpurConfig.drowningDamageInterval; // Purpur - Drowning Settings
+diff --git a/net/minecraft/world/entity/PortalProcessor.java b/net/minecraft/world/entity/PortalProcessor.java
+index 41bf0b2802cc2eb72aba92bd2b2ecbbf838e4da4..a10e3fd904a1f17fcbeedcb002acb72339634d6c 100644
+--- a/net/minecraft/world/entity/PortalProcessor.java
++++ b/net/minecraft/world/entity/PortalProcessor.java
+@@ -26,9 +26,17 @@ public class PortalProcessor {
+             return false;
+         } else {
+             this.insidePortalThisTick = false;
+-            return canChangeDimensions && this.portalTime++ >= this.portal.getPortalTransitionTime(level, entity);
++            return canChangeDimensions && lagCompensation(this.portalTime++, level) >= this.portal.getPortalTransitionTime(level, entity); // Nitro - Lag compensation
+         }
+     }
++    // Nitro start - Lag compensation
++    private int lagCompensation(int original, ServerLevel world) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.portalAcceleration) return original;
++        if (world.isClientSide()) return original;
++        portalTime = portalTime + world.tpsCalculator.applicableMissedTicks();
++        return portalTime;
++    }
++    // Nitro end - Lag compensation
+ 
+     public @Nullable TeleportTransition getPortalDestination(ServerLevel level, Entity entity) {
+         return this.portal.getPortalDestination(level, entity, this.entryPosition);
+diff --git a/net/minecraft/world/entity/item/ItemEntity.java b/net/minecraft/world/entity/item/ItemEntity.java
+index ddf7fa8e67440beb102b6bf91b30f2b340b52a8e..8e1bb754ac2de74aaf10280f94e5829cc469553d 100644
+--- a/net/minecraft/world/entity/item/ItemEntity.java
++++ b/net/minecraft/world/entity/item/ItemEntity.java
+@@ -145,9 +145,22 @@ public class ItemEntity extends Entity implements TraceableEntity {
+         }
+     }
+     // Paper end - EAR 2
++    // Nitro start - Lag compensation
++    private void lagCompensation() {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.pickupAcceleration) return;
++        if ((this).level().isClientSide()) return;
++        if (pickupDelay == 0) return;
++        if (pickupDelay - ((ServerLevel) this.level()).tpsCalculator.applicableMissedTicks() <= 0) {
++            pickupDelay = 0;
++            return;
++        }
++        pickupDelay = pickupDelay - ((ServerLevel) this.level()).tpsCalculator.applicableMissedTicks();
++    }
++    // Nitro end - Lag compensation
+ 
+     @Override
+     public void tick() {
++        lagCompensation(); // Nitro - Lag compensation
+         if (this.getItem().isEmpty()) {
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+         } else {
+diff --git a/net/minecraft/world/item/Item.java b/net/minecraft/world/item/Item.java
+index a97923a94eb8a63b9a2ece6d46b8b19dd4cfb866..c8a3adefdb89b4fd1a9bcd7dc98ccb3464137e2c 100644
+--- a/net/minecraft/world/item/Item.java
++++ b/net/minecraft/world/item/Item.java
+@@ -298,11 +298,23 @@ public class Item implements FeatureElement, ItemLike {
+             return stack.has(DataComponents.KINETIC_WEAPON) ? ItemUseAnimation.SPEAR : ItemUseAnimation.NONE;
+         }
+     }
++    // Nitro start - Lag compensation
++    private int lagCompensation(int original, net.minecraft.server.level.ServerLevel level) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.eatingAcceleration || original == 0) return original;
++        return gr1mly4memes.nitro.util.tps.TPSUtil.tt20(original, true, level);
++    }
++    // Nitro end - Lag compensation
+ 
+     public int getUseDuration(ItemStack stack, LivingEntity entity) {
+         Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+         if (consumable != null) {
+-            return consumable.consumeTicks();
++            // Nitro start - Lag compensation
++            int original = consumable.consumeTicks();
++            if (entity.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
++                return lagCompensation(original, serverLevel);
++            }
++            return original;
++            // Nitro end - Lag compensation
+         } else {
+             return !stack.has(DataComponents.BLOCKS_ATTACKS) && !stack.has(DataComponents.KINETIC_WEAPON) ? 0 : 72000;
+         }
+diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
+index 583ba18f03ec207fff52c45c7dac496861abce52..75898042bd4ea2369de5273c3d5507394113960a 100644
+--- a/net/minecraft/world/level/Level.java
++++ b/net/minecraft/world/level/Level.java
+@@ -130,7 +130,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+     private final RandomSource threadSafeRandom = RandomSource.createThreadSafe();
+     private final Holder<DimensionType> dimensionTypeRegistration;
+     public final WritableLevelData levelData;
+-    private final boolean isClientSide;
++    public final boolean isClientSide;
+     private final BiomeManager biomeManager;
+     private final ResourceKey<Level> dimension;
+     private final RegistryAccess registryAccess;
+diff --git a/net/minecraft/world/level/block/state/BlockBehaviour.java b/net/minecraft/world/level/block/state/BlockBehaviour.java
+index 430712393db078423d5d7e3391cc0a6833cab434..c90c5554f094296eb9a97dfca06c4729c6a5773a 100644
+--- a/net/minecraft/world/level/block/state/BlockBehaviour.java
++++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
+@@ -348,14 +348,21 @@ public abstract class BlockBehaviour implements FeatureElement {
+ 
+     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+     }
++    // Nitro start - Lag compensation
++    private float lagCompensation(float original, Player player) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.blockBreakingAcceleration) return original;
++        if (player.level().isClientSide) return original;
++        return original * gr1mly4memes.nitro.util.tps.TPSCalculator.MAX_TPS / (float) ((ServerLevel) player.level()).tpsCalculator.getMostAccurateTPS();
++    }
++    // Nitro end - Lag compensation
+ 
+     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
+         float destroySpeed = state.getDestroySpeed(level, pos);
+         if (destroySpeed == -1.0F) {
+-            return 0.0F;
++            return lagCompensation(0.0F, player); // Nitro - Lag compensation
+         } else {
+             int i = player.hasCorrectToolForDrops(state) ? 30 : 100;
+-            return player.getDestroySpeed(state) / destroySpeed / i;
++            return lagCompensation(player.getDestroySpeed(state) / destroySpeed / i, player); // Nitro - Lag compensation
+         }
+     }
+ 
+diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
+index e911df23874396080e4b430e77035b29a2d877c7..41bd6601a3ab66feaf4813daf2c57f4d14d79367 100644
+--- a/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -962,6 +962,17 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+             this.blockEntity = blockEntity;
+             this.ticker = ticker;
+         }
++        // Nitro start - Lag compensation
++        private <T extends BlockEntity> void lagCompensation(Runnable original) {
++            original.run();
++            if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled) return;
++            if (!gr1mly4memes.nitro.NitroConfig.blockEntityAcceleration) return;
++            if (LevelChunk.this.level.isClientSide()) return;
++            for (int i = 0; i < ((ServerLevel) this.blockEntity.getLevel()).tpsCalculator.applicableMissedTicks(); i++) {
++                original.run();
++            }
++        }
++        // Nitro end - Lag compensation
+ 
+         @Override
+         public void tick() {
+@@ -973,7 +984,11 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+                         profilerFiller.push(this::getType);
+                         BlockState blockState = LevelChunk.this.getBlockState(blockPos);
+                         if (this.blockEntity.getType().isValid(blockState)) {
+-                            this.ticker.tick(LevelChunk.this.level, this.blockEntity.getBlockPos(), blockState, this.blockEntity);
++                            // Nitro start - Lag compensation
++                            lagCompensation(() -> {
++                                this.ticker.tick(LevelChunk.this.level, this.blockEntity.getBlockPos(), blockState, this.blockEntity);
++                            });
++                            // Nitro end - Lag compensation
+                             this.loggedInvalidBlockState = false;
+                         // Paper start - Remove the Block Entity if it's invalid
+                         } else {
+diff --git a/net/minecraft/world/level/material/LavaFluid.java b/net/minecraft/world/level/material/LavaFluid.java
+index 3e81c98e2e6b0f1424429ab52aa43d229c867cc7..182d756fcad4e307345a1f2517faa8581c0e532f 100644
+--- a/net/minecraft/world/level/material/LavaFluid.java
++++ b/net/minecraft/world/level/material/LavaFluid.java
+@@ -187,10 +187,22 @@ public abstract class LavaFluid extends FlowingFluid {
+     public boolean canBeReplacedWith(FluidState fluidState, BlockGetter level, BlockPos pos, Fluid fluid, Direction direction) {
+         return fluidState.getHeight(level, pos) >= 0.44444445F && fluid.is(FluidTags.WATER);
+     }
++    // Nitro start - Lag compensation
++    private int lagCompensation(int original, ServerLevel level) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.fluidAcceleration) return original;
++        return gr1mly4memes.nitro.util.tps.TPSUtil.tt20(original, true, level);
++    }
++    // Nitro end - Lag compensation
+ 
+     @Override
+     public int getTickDelay(LevelReader level) {
+-        return level.getWorldBorder().world != null ? (isFastLava(level) ? level.getWorldBorder().world.purpurConfig.lavaSpeedNether : level.getWorldBorder().world.purpurConfig.lavaSpeedNotNether) : (isFastLava(level) ? 10 : 30); // Purpur - Make lava flow speed configurable
++        // Nitro start - Lag compensation
++        int original = level.getWorldBorder().world != null ? (isFastLava(level) ? level.getWorldBorder().world.purpurConfig.lavaSpeedNether : level.getWorldBorder().world.purpurConfig.lavaSpeedNotNether) : (isFastLava(level) ? 10 : 30); // Purpur - Make lava flow speed configurable
++        if (level instanceof ServerLevel serverLevel) {
++            return lagCompensation(original, serverLevel);
++        }
++        return original;
++        // Nitro end - Lag compensation
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/material/WaterFluid.java b/net/minecraft/world/level/material/WaterFluid.java
+index 4533d9f76f4ea21cee3c3114bcfcded40fe7321b..2fab590422ed5399911a434281a992c09b7431fc 100644
+--- a/net/minecraft/world/level/material/WaterFluid.java
++++ b/net/minecraft/world/level/material/WaterFluid.java
+@@ -122,9 +122,16 @@ public abstract class WaterFluid extends FlowingFluid {
+     public int getDropOff(LevelReader level) {
+         return 1;
+     }
++    // Nitro start - Lag compensation
++    private int lagCompensation(ServerLevel level) {
++        if (!gr1mly4memes.nitro.NitroConfig.lagCompensationEnabled || !gr1mly4memes.nitro.NitroConfig.fluidAcceleration) return 5;
++        return gr1mly4memes.nitro.util.tps.TPSUtil.tt20(5, true, level);
++    }
++    //Nitro end - Lag compensation
+ 
+     @Override
+     public int getTickDelay(LevelReader level) {
++        if (level instanceof ServerLevel serverLevel) return lagCompensation(serverLevel); // Nitro - Lag compensation
+         return 5;
+     }
+ 

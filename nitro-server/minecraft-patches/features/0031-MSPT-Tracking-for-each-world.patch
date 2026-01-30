@@ -1,0 +1,41 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 26 Jan 2026 18:50:56 -0800
+Subject: [PATCH] MSPT-Tracking-for-each-world
+
+
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index b758d8157dd2534c929e707054789d18f8a43c70..87c5fc960d87732c636aa682d955505f1c2b43ac 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1812,7 +1812,14 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     // Nitro start - Parallel world ticking
+     private void tickLevel(ServerLevel serverLevel, BooleanSupplier hasTimeLeft) {
+     try {
++        // Nitro start - MSPT Tracking for each world
++        long i = Util.getNanos();
+         serverLevel.tick(hasTimeLeft);
++        long j = Util.getNanos() - i;
++        serverLevel.tickTimes5s.add(this.tickCount, j);
++        serverLevel.tickTimes10s.add(this.tickCount, j);
++        serverLevel.tickTimes60s.add(this.tickCount, j);
++        // Nitro end - MSPT Tracking for each world
+     } catch (Throwable levelTickingException) {
+         CrashReport crashReport = CrashReport.forThrowable(levelTickingException, "Exception ticking world");
+         serverLevel.fillReportDetails(crashReport);
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index fa48e28fb5fb16aa31b96909b7d67153896d5ee3..b11e24ef1e6ff4a6f2660dba2f40711e7dbdf466 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -602,6 +602,11 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         this.playerTickingChunks.remove((LevelChunk)chunkHolder.getCurrentChunk());
+     }
+     // Paper end - chunk tick iteration
++    // Nitro start - MSPT Tracking for each world
++    public final MinecraftServer.TickTimes tickTimes5s = new MinecraftServer.TickTimes(100);
++    public final MinecraftServer.TickTimes tickTimes10s = new MinecraftServer.TickTimes(200);
++    public final MinecraftServer.TickTimes tickTimes60s = new MinecraftServer.TickTimes(1200);
++    // Nitro end - MSPT Tracking for each world
+ 
+     public ServerLevel(
+         MinecraftServer server,

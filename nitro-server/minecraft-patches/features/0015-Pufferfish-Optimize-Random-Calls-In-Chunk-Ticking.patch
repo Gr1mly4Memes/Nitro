@@ -5,10 +5,10 @@ Subject: [PATCH] Pufferfish Optimize Random Calls In Chunk Ticking
 
 
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 7d66777261171840a74c6cb3f5b61ce03ce3b36c..c22c986d2c175cb9de2e9485639453e2116c4d8a 100644
+index 853bb92c034b6361ff8c55daf52f38a226fdae2c..d340702e717226750050d3d41229b9d145ddfa82 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -1045,7 +1045,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1044,7 +1044,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          int minBlockZ = pos.getMinBlockZ();
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("thunder");

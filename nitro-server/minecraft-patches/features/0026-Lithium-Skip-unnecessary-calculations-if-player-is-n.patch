@@ -4,11 +4,12 @@ Date: Sun, 18 Jan 2026 17:22:40 -0800
 Subject: [PATCH] Lithium: Skip unnecessary calculations if player is not
  flying or swing
 
+
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 940dc1cb6c5fb064ab3b5a8e2ad6d8e84b10ceed..689b44bf0f3a87fb9b2039a65cf90362a0030981 100644
+index 3e3a65b102f0df663e858d63e32c2d10cadd63e8..874ef84e745efa51b3b58634e85a6cb39de74828 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -2918,6 +2918,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -2872,6 +2872,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
      }
  
      protected void updateSwingTime() {
@@ -16,7 +17,7 @@ index 940dc1cb6c5fb064ab3b5a8e2ad6d8e84b10ceed..689b44bf0f3a87fb9b2039a65cf90362
          int currentSwingDuration = this.getCurrentSwingDuration();
          if (this.swinging) {
              this.swingTime++;
-@@ -3983,6 +3984,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3937,6 +3938,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
      protected void updateFallFlying() {
          this.checkFallDistanceAccumulation();
          if (!this.level().isClientSide()) {

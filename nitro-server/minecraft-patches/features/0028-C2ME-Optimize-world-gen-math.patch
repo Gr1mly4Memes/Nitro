@@ -3,8 +3,9 @@ From: Gr1mly4Memes <alagozantoni14@gmail.com>
 Date: Sun, 18 Jan 2026 17:22:40 -0800
 Subject: [PATCH] C2ME: Optimize world gen math
 
+
 diff --git a/net/minecraft/world/level/ChunkPos.java b/net/minecraft/world/level/ChunkPos.java
-index de7c262f65557f149e00059c7df85917c9ca4342..125fc0057b0ac1ebd830da11bf3a75caf2770f1f 100644
+index de7c262f65557f149e00059c7df85917c9ca4342..21e424558c64752acf17d251bd5e45080ab79579 100644
 --- a/net/minecraft/world/level/ChunkPos.java
 +++ b/net/minecraft/world/level/ChunkPos.java
 @@ -119,7 +119,13 @@ public class ChunkPos {
@@ -23,7 +24,7 @@ index de7c262f65557f149e00059c7df85917c9ca4342..125fc0057b0ac1ebd830da11bf3a75ca
  
      public int getMiddleBlockX() {
 diff --git a/net/minecraft/world/level/levelgen/Beardifier.java b/net/minecraft/world/level/levelgen/Beardifier.java
-index b87fad848fa4342dc420a186a762cc826e9c0294..c55cabb53b79fa88c6e90000e0a1b99ad50d7c21 100644
+index b87fad848fa4342dc420a186a762cc826e9c0294..b9f42a8f8f1b5570abe8fedfcccc8ac6d1abbade 100644
 --- a/net/minecraft/world/level/levelgen/Beardifier.java
 +++ b/net/minecraft/world/level/levelgen/Beardifier.java
 @@ -108,51 +108,53 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {

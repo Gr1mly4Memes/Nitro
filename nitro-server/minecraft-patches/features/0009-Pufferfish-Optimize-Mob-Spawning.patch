@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish Optimize Mob Spawning
 
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 1403a88d048f36ec47e884e4958cc3e4c5cbd900..f33acbd4211b18eba53a35a15a98943ac13fb577 100644
+index 451f5e3c187501c271e39a87a6f8e83d3be2416d..735f3c308571dfb8af39fca4e12a82a7c5e7bdd8 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -283,6 +283,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

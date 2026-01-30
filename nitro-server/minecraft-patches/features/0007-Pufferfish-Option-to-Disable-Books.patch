@@ -5,7 +5,7 @@ Subject: [PATCH] Pufferfish Option to Disable Books
 
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index f94b7831ac68ab6d3c0d06af2b6b014cf6e670df..1fda2414c2dade747cdb02429f9b92ce88069507 100644
+index c90700ab287fb43a3d303b1376ee2823e6941798..6650f5a9825271cffe7cc1c43130c112bab3834f 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -1316,6 +1316,7 @@ public class ServerGamePacketListenerImpl

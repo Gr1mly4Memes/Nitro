@@ -5,7 +5,7 @@ Subject: [PATCH] Small-optimization-to-LinearPalette
 
 
 diff --git a/net/minecraft/world/level/chunk/LinearPalette.java b/net/minecraft/world/level/chunk/LinearPalette.java
-index c93302f2457c71caae6f56c59d3a66357a0a6cd6..9cc3db0d9c0813559c12a7e8bed11986e4983204 100644
+index c93302f2457c71caae6f56c59d3a66357a0a6cd6..409c6edf4a1ac113ebbf333195396c3943a33b1e 100644
 --- a/net/minecraft/world/level/chunk/LinearPalette.java
 +++ b/net/minecraft/world/level/chunk/LinearPalette.java
 @@ -10,7 +10,7 @@ import org.apache.commons.lang3.Validate;
