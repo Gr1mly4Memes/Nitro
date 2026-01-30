@@ -34,7 +34,7 @@ public final class MSPTCommand implements NitroSubcommand {
     public boolean execute(CommandSender sender, String subCommand, String[] args) {
         if (!NitroConfig.enableParallelWorldTicking) {
             sender.sendMessage(Component.text("Per-world MSPT tracking is only available when parallel world ticking is enabled.", RED));
-            sender.sendMessage(Component.text("Please enable it in divinemc.yml to use this command.", GRAY));
+            sender.sendMessage(Component.text("Please enable it in nitro.yml to use this command.", GRAY));
             return true;
         }
 
@@ -65,7 +65,7 @@ public final class MSPTCommand implements NitroSubcommand {
 
         for (int i = 0; i < worlds.size(); i++) {
             ServerLevel level = worlds.get(i);
-            List<Component> worldTimes = evalFromTickData(level.getServer().tickTimes5s, server.tickRateManager().nanosecondsPerTick());
+            List<Component> worldTimes = evalWorldTickData(level);
             sender.sendMessage(Component.text(level.getWorld().getName() + ": ", GOLD)
                 .append(joinComponents(worldTimes, SLASH)));
             if (i < worlds.size() - 1) {
@@ -93,10 +93,7 @@ public final class MSPTCommand implements NitroSubcommand {
 
         for (int i = 0; i < worlds.size(); i++) {
             ServerLevel level = worlds.get(i);
-            List<Component> worldTimes = new ArrayList<>();
-            worldTimes.addAll(eval(level.tickTimes5s.getTimes()));
-            worldTimes.addAll(eval(level.tickTimes10s.getTimes()));
-            worldTimes.addAll(eval(level.tickTimes60s.getTimes()));
+            List<Component> worldTimes = evalWorldTickData(level);
 
             sender.sendMessage(Component.text("➤ ", YELLOW)
                 .append(Component.text(level.getWorld().getName(), GOLD)));
@@ -149,6 +146,17 @@ public final class MSPTCommand implements NitroSubcommand {
         double max = segmentAll.greatest() * 1.0E-6;
 
         return Arrays.asList(getColoredValue(avg), getColoredValue(min), getColoredValue(max));
+    }
+
+    private List<Component> evalWorldTickData(ServerLevel level) {
+        List<Component> result = new ArrayList<>();
+        
+        // Evaluate each time period directly using the public fields
+        result.addAll(eval(level.tickTimes5s.getTimes()));
+        result.addAll(eval(level.tickTimes10s.getTimes()));
+        result.addAll(eval(level.tickTimes60s.getTimes()));
+        
+        return result;
     }
 
     private static Component getColoredValue(double value) {

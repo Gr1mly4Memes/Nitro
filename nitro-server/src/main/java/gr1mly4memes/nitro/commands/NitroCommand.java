@@ -1,6 +1,6 @@
 package gr1mly4memes.nitro.commands;
 
-import gr1mly4memes.nitro.commands.subcommands.ConfigCommand;
+import gr1mly4memes.nitro.commands.subcommands.MSPTCommand;
 import gr1mly4memes.nitro.commands.subcommands.ReloadCommand;
 import io.papermc.paper.command.CommandUtil;
 import it.unimi.dsi.fastutil.Pair;
@@ -26,7 +26,7 @@ public final class NitroCommand extends Command {
     // subcommand label -> subcommand
     private static final Map<String, NitroSubcommand> SUBCOMMANDS = Util.make(() -> {
         final Map<Set<String>, NitroSubcommand> commands = new HashMap<>();
-        commands.put(Set.of("config"), new ConfigCommand());
+        commands.put(Set.of("mspt"), new MSPTCommand());
         commands.put(Set.of("reload"), new ReloadCommand());
 
         return commands.entrySet().stream()
