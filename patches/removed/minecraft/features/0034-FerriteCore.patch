@@ -1,0 +1,162 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 1 Feb 2026 13:09:57 -0800
+Subject: [PATCH] FerriteCore
+
+
+diff --git a/net/minecraft/world/level/chunk/LevelChunk.java b/net/minecraft/world/level/chunk/LevelChunk.java
+index 41bd6601a3ab66feaf4813daf2c57f4d14d79367..973328c5b5abae822971960475d0f668d1b0f68d 100644
+--- a/net/minecraft/world/level/chunk/LevelChunk.java
++++ b/net/minecraft/world/level/chunk/LevelChunk.java
+@@ -85,7 +85,9 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+             return "<null>";
+         }
+     };
++    // Nitro start - FerriteCore
+     private final Map<BlockPos, LevelChunk.RebindableTickingBlockEntityWrapper> tickersInLevel = Maps.newHashMap();
++    // Nitro end - FerriteCore
+     public boolean loaded;
+     public final ServerLevel level; // CraftBukkit - type
+     private @Nullable Supplier<FullChunkStatus> fullStatus;
+@@ -573,15 +575,18 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+ 
+             blockEntity.setLevel(this.level);
+             blockEntity.clearRemoved();
++            // Nitro start - FerriteCore
+             BlockEntity blockEntity1 = this.blockEntities.put(blockPos.immutable(), blockEntity);
+             if (blockEntity1 != null && blockEntity1 != blockEntity) {
+                 blockEntity1.setRemoved();
+             }
++            // Nitro end - FerriteCore
+         }
+     }
+ 
+     @Override
+     public @Nullable CompoundTag getBlockEntityNbtForSaving(BlockPos pos, HolderLookup.Provider registries) {
++        // Nitro start - FerriteCore
+         BlockEntity blockEntity = this.getBlockEntity(pos);
+         if (blockEntity != null && !blockEntity.isRemoved()) {
+             CompoundTag compoundTag = blockEntity.saveWithFullMetadata(this.level.registryAccess());
+@@ -596,6 +601,7 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+ 
+             return compoundTag;
+         }
++        // Nitro end - FerriteCore
+     }
+ 
+     @Override
+@@ -894,10 +900,12 @@ public class LevelChunk extends ChunkAccess implements DebugValueSource, ca.spot
+     }
+ 
+     public void clearAllBlockEntities() {
++        // Nitro start - FerriteCore
+         this.blockEntities.values().forEach(BlockEntity::setRemoved);
+         this.blockEntities.clear();
+         this.tickersInLevel.values().forEach(ticker -> ticker.rebind(NULL_TICKER));
+         this.tickersInLevel.clear();
++        // Nitro end - FerriteCore
+     }
+ 
+     public void registerAllBlockEntitiesAfterLevelLoad() {
+diff --git a/net/minecraft/world/level/chunk/PalettedContainer.java b/net/minecraft/world/level/chunk/PalettedContainer.java
+index 21a1b17ba6b06dc2f3539877dd728a80c3d8f54c..49add33082269504a66a786bb81716fbbfc525e1 100644
+--- a/net/minecraft/world/level/chunk/PalettedContainer.java
++++ b/net/minecraft/world/level/chunk/PalettedContainer.java
+@@ -212,6 +212,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+     // Paper end - Anti-Xray
+ 
+     public synchronized T getAndSet(int x, int y, int z, T state) { // Paper - synchronize
++        // Nitro start - FerriteCore
+         this.acquire();
+ 
+         Object var5;
+@@ -222,6 +223,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+         }
+ 
+         return (T)var5;
++        // Nitro end - FerriteCore
+     }
+ 
+     public T getAndSetUnchecked(int x, int y, int z, T state) {
+@@ -248,8 +250,10 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+     }
+ 
+     private void set(int index, T state) {
++        // Nitro start - FerriteCore
+         int i = this.data.palette.idFor(state, this);
+         this.data.storage.set(index, i);
++        // Nitro end - FerriteCore
+     }
+ 
+     @Override
+@@ -259,8 +263,10 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+ 
+     public T get(int index) { // Paper - public
+         // Paper start - optimise palette reads
++        // Nitro start - FerriteCore
+         final PalettedContainer.Data<T> data = this.data;
+         return this.readPalette(data, data.storage.get(index));
++        // Nitro end - FerriteCore
+         // Paper end - optimise palette reads
+     }
+ 
+@@ -470,6 +476,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+     @Override
+     public void count(PalettedContainer.CountConsumer<T> countConsumer) {
+         // Nitro start - lithium: faster chunk serialization
++        // Nitro start - FerriteCore
+         int len = this.data.palette().getSize();
+ 
+         if (len > 4096) {
+@@ -493,6 +500,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+                 countConsumer.accept(obj, counts[i]);
+             }
+         }
++        // Nitro end - FerriteCore
+         // Nitro end - lithium: faster chunk serialization
+     }
+ 
+diff --git a/net/minecraft/world/level/entity/EntityLookup.java b/net/minecraft/world/level/entity/EntityLookup.java
+index 9f63337e947674dfd678a5cbf8178fa44f3516f9..2b5b87a5e271deeb51c91dcec4a2187e03ea48a7 100644
+--- a/net/minecraft/world/level/entity/EntityLookup.java
++++ b/net/minecraft/world/level/entity/EntityLookup.java
+@@ -13,16 +13,20 @@ import org.slf4j.Logger;
+ 
+ public class EntityLookup<T extends EntityAccess> {
+     private static final Logger LOGGER = LogUtils.getLogger();
++    // Nitro start - FerriteCore
+     private final Int2ObjectMap<T> byId = new Int2ObjectLinkedOpenHashMap<>();
+     private final Map<UUID, T> byUuid = Maps.newHashMap();
++    // Nitro end - FerriteCore
+ 
+     public <U extends T> void getEntities(EntityTypeTest<T, U> test, AbortableIterationConsumer<U> consumer) {
++        // Nitro start - FerriteCore
+         for (T entityAccess : this.byId.values()) {
+             U entityAccess1 = (U)test.tryCast(entityAccess);
+             if (entityAccess1 != null && consumer.accept(entityAccess1).shouldAbort()) {
+                 return;
+             }
+         }
++        // Nitro end - FerriteCore
+     }
+ 
+     public Iterable<T> getAllEntities() {
+@@ -42,14 +46,18 @@ public class EntityLookup<T extends EntityAccess> {
+             }
+             // Paper end - extra debug info
+         } else {
++            // Nitro start - FerriteCore
+             this.byUuid.put(uuid, entity);
+             this.byId.put(entity.getId(), entity);
++            // Nitro end - FerriteCore
+         }
+     }
+ 
+     public void remove(T entity) {
++        // Nitro start - FerriteCore
+         this.byUuid.remove(entity.getUUID());
+         this.byId.remove(entity.getId());
++        // Nitro end - FerriteCore
+     }
+ 
+     public @Nullable T getEntity(int id) {
