@@ -4,8 +4,9 @@ Date: Mon, 26 Jan 2026 19:41:47 -0800
 Subject: [PATCH] SparklyPaper: Skip distanceToSqr call in
  ServerEntity#sendChanges if the delta movement hasn't changed
 
+
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index 3a817c92147bb78c60238f3ddc1644b721aed7a2..ec05269a2ec8b416582da8ff0c7da7ac83e4e8fa 100644
+index 3a817c92147bb78c60238f3ddc1644b721aed7a2..7c6c1bca1715b93e5b1051c954b4ee2106ce4486 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
 @@ -197,23 +197,27 @@ public class ServerEntity {
