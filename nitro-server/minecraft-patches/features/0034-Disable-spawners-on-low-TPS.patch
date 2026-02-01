@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 1 Feb 2026 14:56:55 -0800
+Subject: [PATCH] Disable-spawners-on-low-TPS
+
+
+diff --git a/net/minecraft/world/level/BaseSpawner.java b/net/minecraft/world/level/BaseSpawner.java
+index 93fa81eb9d4ad5f942f96ba0c0e69635a5fc408f..45db4136a0e64e75acec88d06859d7fcbf3d08a7 100644
+--- a/net/minecraft/world/level/BaseSpawner.java
++++ b/net/minecraft/world/level/BaseSpawner.java
+@@ -85,6 +85,11 @@ public abstract class BaseSpawner {
+ 
+     public void serverTick(ServerLevel level, BlockPos pos) {
+         if (spawnCount <= 0 || maxNearbyEntities <= 0) return; // Paper - Ignore impossible spawn tick
++        // Nitro start - Spawner
++        if (level.getServer().getAverageTickTimeNanos() > (1.0E9 / gr1mly4memes.nitro.NitroConfig.spawnerTpsThreshold)) {
++            return;
++        }
++        // Nitro end - Spawner
+         // Paper start - Configurable mob spawner tick rate
+         if (spawnDelay > 0 && --tickDelay > 0) return;
+         tickDelay = level.paperConfig().tickRates.mobSpawner;

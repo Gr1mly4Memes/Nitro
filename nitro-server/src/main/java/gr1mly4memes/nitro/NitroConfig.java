@@ -210,9 +210,10 @@ public final class NitroConfig {
     // Nitro end - Miscellaneous
     @GlobalConfig(name = "disable-method-profiler", category = {"Miscellaneous"})
     public static boolean disableMethodProfiler = true;
-
     @GlobalConfig(name = "allow-end-crystal-respawn", category = {"Miscellaneous"})
     public static boolean allowEndCrystalRespawn = true;
+    @GlobalConfig(name = "disable-spawner-on-low-tps", category = {"Miscellaneous"})
+    public static int spawnerTpsThreshold = 15;
     // Nitro end - Miscellaneous
 
     // Nitro start - Parallel World Ticking
