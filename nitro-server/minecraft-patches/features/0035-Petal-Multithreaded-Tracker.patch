@@ -1,0 +1,644 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 1 Feb 2026 16:39:05 -0800
+Subject: [PATCH] Petal-Multithreaded-Tracker
+
+
+diff --git a/ca/spottedleaf/moonrise/common/misc/NearbyPlayers.java b/ca/spottedleaf/moonrise/common/misc/NearbyPlayers.java
+index 1b8193587814225c2ef2c5d9e667436eb50ff6c5..dc2c09829fa63b329d0bc79f0e40a2c026718c4c 100644
+--- a/ca/spottedleaf/moonrise/common/misc/NearbyPlayers.java
++++ b/ca/spottedleaf/moonrise/common/misc/NearbyPlayers.java
+@@ -60,7 +60,16 @@ public final class NearbyPlayers {
+ 
+     private final ServerLevel world;
+     private final Reference2ReferenceOpenHashMap<ServerPlayer, TrackedPlayer[]> players = new Reference2ReferenceOpenHashMap<>();
+-    private final Long2ReferenceOpenHashMap<TrackedChunk> byChunk = new Long2ReferenceOpenHashMap<>();
++    // Nitro start - Multithreaded Tracker
++    private final it.unimi.dsi.fastutil.longs.Long2ReferenceMap<TrackedChunk> byChunk;
++    {
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            byChunk = it.unimi.dsi.fastutil.longs.Long2ReferenceMaps.synchronize(new Long2ReferenceOpenHashMap<>());
++        } else {
++            byChunk = new Long2ReferenceOpenHashMap<>();
++        }
++    }
++    // Nitro end - Multithreaded Tracker
+     private final Long2ReferenceOpenHashMap<ReferenceList<ServerPlayer>>[] directByChunk = new Long2ReferenceOpenHashMap[TOTAL_MAP_TYPES];
+     {
+         for (int i = 0; i < this.directByChunk.length; ++i) {
+diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/player/RegionizedPlayerChunkLoader.java b/ca/spottedleaf/moonrise/patches/chunk_system/player/RegionizedPlayerChunkLoader.java
+index 7129c5e1920008ac54f3a8ac83f5589396f4e4e9..009e46e0bb6ea5cae8045a8fed53d32c0e31b046 100644
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/player/RegionizedPlayerChunkLoader.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/player/RegionizedPlayerChunkLoader.java
+@@ -344,7 +344,11 @@ public final class RegionizedPlayerChunkLoader {
+         private boolean canGenerateChunks = true;
+ 
+         private final ArrayDeque<ChunkHolderManager.TicketOperation<?, ?>> delayedTicketOps = new ArrayDeque<>();
+-        private final LongOpenHashSet sentChunks = new LongOpenHashSet();
++        // Nitro start - Multithreaded tracker
++        private final LongOpenHashSet sentChunks = gr1mly4memes.nitro.NitroConfig.multithreadedEnabled && !gr1mly4memes.nitro.NitroConfig.multithreadedCompactModeEnabled
++                ? new gr1mly4memes.nitro.util.map.ConcurrentLongHashSet()
++                : new LongOpenHashSet();
++        // Nitro end - Multithreaded tracker
+ 
+         private static final byte CHUNK_TICKET_STAGE_NONE           = 0;
+         private static final byte CHUNK_TICKET_STAGE_LOADING        = 1;
+diff --git a/net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.java b/net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.java
+index 51ec726fcfe5b178d1e45fa14a604c81cf38bb3c..1da3ca82ce1aa1b721d2b50b671d083abf1c4e07 100644
+--- a/net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundUpdateAttributesPacket.java
+@@ -32,6 +32,7 @@ public class ClientboundUpdateAttributesPacket implements Packet<ClientGamePacke
+         this.attributes = Lists.newArrayList();
+ 
+         for (AttributeInstance attributeInstance : attributes) {
++            if (attributeInstance == null) continue; // Nitro - Multithreaded Tracker
+             this.attributes
+                 .add(
+                     new ClientboundUpdateAttributesPacket.AttributeSnapshot(
+diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
+index ab8893163ac85971a470e4a4d6fa76bd174e2bae..9d7b77efed689dc95bc9b264ba6087cc6f4cfafd 100644
+--- a/net/minecraft/server/level/ChunkMap.java
++++ b/net/minecraft/server/level/ChunkMap.java
+@@ -261,9 +261,19 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+         }
+ 
+         final ServerPlayer[] backingSet = inRange.getRawDataUnchecked();
+-        for (int i = 0, len = inRange.size(); i < len; i++) {
+-            ++(backingSet[i].mobCounts[index]);
++        // Nitro start - Multithreaded Tracker
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            for (int i = 0, len = inRange.size(); i < len; i++) {
++                final ServerPlayer player = backingSet[i];
++                if (player == null) continue;
++                ++(player.mobCounts[index]);
++            }
++        } else {
++            for (int i = 0, len = inRange.size(); i < len; i++) {
++                ++(backingSet[i].mobCounts[index]);
++            }
+         }
++        // Nitro end - Multithreaded Tracker
+     }
+ 
+     // Paper start - per player mob count backoff
+@@ -1063,6 +1073,13 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+     // Paper end - optimise entity tracker
+ 
+     protected void tick() {
++        // Nitro start - Multithreaded tracker
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            final ServerLevel level = this.level;
++            gr1mly4memes.nitro.async.tracking.MultithreadedTracker.tick(level);
++            return;
++        }
++        // Nitro end - Multithreaded tracker
+         // Paper start - optimise entity tracker
+         if (true) {
+             this.newTrackerTick();
+@@ -1212,7 +1229,40 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+         final Entity entity;
+         private final int range;
+         SectionPos lastSectionPos;
+-        public final Set<ServerPlayerConnection> seenBy = new it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet<>(); // Paper - Perf: optimise map impl
++        // Nitro start - Multithreaded tracker
++        public static final ServerPlayerConnection[] EMPTY_OBJECT_ARRAY = new ServerPlayerConnection[0];
++        private final it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet<ServerPlayerConnection> nonSyncSeenBy = new it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet<>() {
++            @Override
++            public boolean add(ServerPlayerConnection serverPlayerConnection) {
++    seenByUpdated = true;
++                return super.add(serverPlayerConnection);
++}
++            @Override
++            public boolean remove(Object k) {
++    seenByUpdated = true;
++                return super.remove(k);
++}
++            @Override
++            public void clear() {
++    seenByUpdated = true;
++                super.clear();
++}
++        };
++        public final Set<ServerPlayerConnection> seenBy = gr1mly4memes.nitro.NitroConfig.multithreadedEnabled ? it.unimi.dsi.fastutil.objects.ReferenceSets.synchronize(nonSyncSeenBy) : nonSyncSeenBy; // Paper - Perf: optimise map impl
++        private volatile boolean seenByUpdated = true;
++        private volatile ServerPlayerConnection[] seenByArray = EMPTY_OBJECT_ARRAY;
++        public ServerPlayerConnection[] seenBy() {
++    if (!seenByUpdated) {
++                return seenByArray;
++            } else {
++                return seenBy.toArray(EMPTY_OBJECT_ARRAY);
++            }
++}
++        public void seenByUpdated() {
++    this.seenByArray = this.seenBy.toArray(EMPTY_OBJECT_ARRAY);
++            seenByUpdated = false;
++}
++        // Nitro end - Multithreaded tracker
+ 
+         // Paper start - optimise entity tracker
+         private long lastChunkUpdate = -1L;
+@@ -1239,22 +1289,79 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+             this.lastTrackedChunk = chunk;
+ 
+             final ServerPlayer[] playersRaw = players.getRawDataUnchecked();
++            final int playersLength = Math.min(playersRaw.length, players.size()); // Nitro - Multithreaded tracker
+ 
+-            for (int i = 0, len = players.size(); i < len; ++i) {
++            for (int i = 0; i < playersLength; ++i)  { // Nitro - Multithreaded tracker
+                 final ServerPlayer player = playersRaw[i];
+                 this.updatePlayer(player);
+             }
+ 
+             if (lastChunkUpdate != currChunkUpdate || lastTrackedChunk != chunk) {
+                 // need to purge any players possible not in the chunk list
+-                for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++                // Nitro start - Multithreaded tracker
++                boolean removed = false;
++                for (final ServerPlayerConnection conn : this.seenBy()) {
+                     final ServerPlayer player = conn.getPlayer();
+                     if (!players.contains(player)) {
+-                        this.removePlayer(player);
++                        removed |= this.removePlayerMulti(player);
+                     }
+                 }
++                if (removed) {
++                    this.seenByUpdated();
++                }
++                // Nitro end - Multithreaded tracker
+             }
+         }
++        // Nitro start - Multithreaded tracker
++        public final @Nullable Runnable tickCompact(final ca.spottedleaf.moonrise.common.misc.NearbyPlayers.TrackedChunk chunk) {
++            if (chunk == null) {
++                this.moonrise$clearPlayers();
++                return null;
++            }
++            final ca.spottedleaf.moonrise.common.list.ReferenceList<ServerPlayer> players = chunk.getPlayers(ca.spottedleaf.moonrise.common.misc.NearbyPlayers.NearbyMapType.VIEW_DISTANCE);
++            if (players == null) {
++                this.moonrise$clearPlayers();
++                return null;
++            }
++            final long lastChunkUpdate = this.lastChunkUpdate;
++            final long currChunkUpdate = chunk.getUpdateCount();
++            final ca.spottedleaf.moonrise.common.misc.NearbyPlayers.TrackedChunk lastTrackedChunk = this.lastTrackedChunk;
++            this.lastChunkUpdate = currChunkUpdate;
++            this.lastTrackedChunk = chunk;
++            final ServerPlayer[] playersRaw = players.getRawDataUnchecked();
++            final int playersLen = players.size(); // Ensure length won't change in the future tasks
++            if (!gr1mly4memes.nitro.NitroConfig.multithreadedEnabled || !gr1mly4memes.nitro.NitroConfig.multithreadedCompactModeEnabled) {
++                throw new IllegalStateException();
++            }
++            final boolean isServerPlayer = this.entity instanceof ServerPlayer;
++            final boolean isRealPlayer = isServerPlayer && ((ca.spottedleaf.moonrise.patches.chunk_system.player.ChunkSystemServerPlayer) this.entity).moonrise$isRealPlayer();
++            Runnable updatePlayerTasks = () -> {
++                for (int i = 0; i < playersLen; ++i) {
++                    final ServerPlayer player = playersRaw[i];
++                    this.updatePlayer(player);
++                }
++                if (lastChunkUpdate != currChunkUpdate || lastTrackedChunk != chunk) {
++                    // need to purge any players possible not in the chunk list
++                    boolean removed = false;
++                    for (final ServerPlayerConnection conn : this.seenBy()) {
++                        final ServerPlayer player = conn.getPlayer();
++                        if (!players.contains(player)) {
++                            removed |= this.removePlayerMulti(player);
++                        }
++                    }
++                    if (removed) {
++                        this.seenByUpdated();
++                    }
++                }
++            };
++            if (isRealPlayer || !isServerPlayer) {
++                return updatePlayerTasks;
++            } else {
++                updatePlayerTasks.run();
++                return null;
++            }
++        }
++        // Nitro end - Multithreaded tracker
+ 
+         @Override
+         public final void moonrise$removeNonTickThreadPlayers() {
+@@ -1270,12 +1377,13 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+                 return;
+             }
+ 
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : this.seenBy()) { // Nitro - Multithreaded tracker
+                 ServerPlayer player = conn.getPlayer();
+                 if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(player)) {
+-                    this.removePlayer(player);
++                    this.removePlayerMulti(player); // Nitro - Multithreaded tracker
+                 }
+             }
++            this.seenByUpdated(); // Nitro - Multithreaded tracker
+         }
+ 
+         @Override
+@@ -1285,10 +1393,11 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+             if (this.seenBy.isEmpty()) {
+                 return;
+             }
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : this.seenBy()) { // Nitro - Multithreaded tracker
+                 ServerPlayer player = conn.getPlayer();
+-                this.removePlayer(player);
++                this.removePlayerMulti(player); // Nitro - Multithreaded tracker
+             }
++            this.seenByUpdated(); // Nitro - Multithreaded tracker
+         }
+ 
+         @Override
+@@ -1316,7 +1425,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+ 
+         @Override
+         public void sendToTrackingPlayers(Packet<? super ClientGamePacketListener> packet) {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy()) { // Nitro - Multithreaded tracker
+                 serverPlayerConnection.send(packet);
+             }
+         }
+@@ -1331,7 +1440,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+ 
+         @Override
+         public void sendToTrackingPlayersFiltered(Packet<? super ClientGamePacketListener> packet, Predicate<ServerPlayer> filter) {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy()) { // Nitro - Multithreaded tracker
+                 if (filter.test(serverPlayerConnection.getPlayer())) {
+                     serverPlayerConnection.send(packet);
+                 }
+@@ -1339,24 +1448,34 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+         }
+ 
+         public void broadcastRemoved() {
+-            for (ServerPlayerConnection serverPlayerConnection : this.seenBy) {
++            for (ServerPlayerConnection serverPlayerConnection : this.seenBy()) { // Nitro - Multithreaded tracker
+                 this.serverEntity.removePairing(serverPlayerConnection.getPlayer());
+             }
+         }
++        // Nitro start - Multithreaded tracker
++        public boolean removePlayerMulti(ServerPlayer player) {
++            if (this.seenBy.remove(player.connection)) {
++                this.serverEntity.removePairing(player);
++                return true;
++            } else {
++                return false;
++            }
++        }
++        // Nitro end - Multithreaded tracker
+ 
+         public void removePlayer(ServerPlayer player) {
+-            org.spigotmc.AsyncCatcher.catchOp("player tracker clear"); // Spigot
+             if (this.seenBy.remove(player.connection)) {
+                 this.serverEntity.removePairing(player);
+                 if (this.seenBy.isEmpty()) {
+                     ChunkMap.this.level.debugSynchronizers().dropEntity(this.entity);
+                 }
+             }
++            this.seenByUpdated(); // Nitro - Multithreaded tracker
+         }
+ 
+         public void updatePlayer(ServerPlayer player) {
+-            org.spigotmc.AsyncCatcher.catchOp("player tracker update"); // Spigot
+             if (player != this.entity) {
++                if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled && player == null) return; // Nitro - Multithreaded tracker
+                 // Paper start - remove allocation of Vec3D here
+                 // Vec3 vec3 = player.position().subtract(this.entity.position());
+                 double vec3_dx = player.getX() - this.entity.getX();
+@@ -1384,6 +1503,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+                 // CraftBukkit end
+                 if (flag) {
+                     if (this.seenBy.add(player.connection)) {
++                        this.seenByUpdated(); // Nitro - Multithreaded tracker
+                         // Paper start - entity tracking events
+                         if (io.papermc.paper.event.player.PlayerTrackEntityEvent.getHandlerList().getRegisteredListeners().length == 0 || new io.papermc.paper.event.player.PlayerTrackEntityEvent(player.getBukkitEntity(), this.entity.getBukkitEntity()).callEvent()) {
+                         this.serverEntity.addPairing(player);
+@@ -1397,6 +1517,7 @@ public class ChunkMap extends SimpleRegionStorage implements ChunkHolder.PlayerP
+                         this.serverEntity.onPlayerAdd(); // Paper - fix desync when a player is added to the tracker
+                     }
+                 } else {
++                    this.seenByUpdated(); // Nitro - Multithreaded tracker
+                     this.removePlayer(player);
+                 }
+             }
+diff --git a/net/minecraft/server/level/ServerBossEvent.java b/net/minecraft/server/level/ServerBossEvent.java
+index f106373ef3ac4a8685c2939c9e8361688a285913..3af6e183df3f24242774a27f1d7fe4a6f1f2e497 100644
+--- a/net/minecraft/server/level/ServerBossEvent.java
++++ b/net/minecraft/server/level/ServerBossEvent.java
+@@ -13,7 +13,11 @@ import net.minecraft.util.Mth;
+ import net.minecraft.world.BossEvent;
+ 
+ public class ServerBossEvent extends BossEvent {
+-    private final Set<ServerPlayer> players = Sets.newHashSet();
++    // Nitro start - Multithreaded tracker - players can be removed in async tracking
++    private final Set<ServerPlayer> players = gr1mly4memes.nitro.NitroConfig.multithreadedEnabled
++            ? Sets.newConcurrentHashSet()
++            : Sets.newHashSet();
++    // Nitro end - Multithreaded tracker
+     private final Set<ServerPlayer> unmodifiablePlayers = Collections.unmodifiableSet(this.players);
+     public boolean visible = true;
+ 
+diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
+index 7c6c1bca1715b93e5b1051c954b4ee2106ce4486..2782ff271fdd273e9799b042439ef2ae06175b26 100644
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -122,7 +122,7 @@ public class ServerEntity {
+                 MapId mapId = itemFrame.cachedMapId; // Paper - Perf: Cache map ids on item frames
+                 MapItemSavedData savedData = MapItem.getSavedData(mapId, this.level);
+                 if (savedData != null) {
+-                    for (final net.minecraft.server.network.ServerPlayerConnection connection : this.trackedPlayers) { // Paper
++                    for (final net.minecraft.server.network.ServerPlayerConnection connection : this.trackedPlayers.toArray(ChunkMap.TrackedEntity.EMPTY_OBJECT_ARRAY)) { // Paper // Nitro - Multithreaded tracker
+                         final ServerPlayer serverPlayer = connection.getPlayer(); // Paper
+                         savedData.tickCarriedBy(serverPlayer, item);
+                         Packet<?> updatePacket = savedData.getUpdatePacket(mapId, serverPlayer);
+@@ -410,8 +410,6 @@ public class ServerEntity {
+                 // CraftBukkit end
+                 this.synchronizer.sendToTrackingPlayersAndSelf(new ClientboundUpdateAttributesPacket(this.entity.getId(), attributesToSync));
+             }
+-
+-            attributesToSync.clear();
+         }
+     }
+ 
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index d811c63798d4a3daff30fe0ff5228f2310c880ca..d5f816444e27c74bd169500cdbfc2470a4903b0b 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -2668,7 +2668,6 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+ 
+     @Override
+     public LevelEntityGetter<Entity> getEntities() {
+-        org.spigotmc.AsyncCatcher.catchOp("Chunk getEntities call"); // Spigot
+         return this.moonrise$getEntityLookup(); // Paper - rewrite chunk system
+     }
+ 
+@@ -2970,7 +2969,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+                         }
+ 
+                         map.carriedByPlayers.remove(player);
+-                        if (map.carriedBy.removeIf(holdingPlayer -> holdingPlayer.player == player)) {
++                        if (map.carriedBy.removeIf(holdingPlayer -> holdingPlayer != null && holdingPlayer.player == player)) { // Nitro - Multithreaded tracker
+                             map.decorations.remove(player.getName().getString());
+                         }
+                     }
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 6650f5a9825271cffe7cc1c43130c112bab3834f..5d34a8f0eae2248ba878fdcab7ad5302282dfda2 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -1953,7 +1953,6 @@ public class ServerGamePacketListenerImpl
+     }
+ 
+     public void internalTeleport(PositionMoveRotation posMoveRotation, Set<Relative> relatives) {
+-        org.spigotmc.AsyncCatcher.catchOp("teleport"); // Paper
+         // Paper start - Prevent teleporting dead entities
+         if (this.player.isRemoved()) {
+             LOGGER.info("Attempt to teleport removed player {} restricted", player.getScoreboardName());
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index 6611fc0df3fa14ca2c9aee667d46b26549910b30..62616bbc755098a6aee8d3a598c03f0ed99632ed 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1381,13 +1381,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+     }
+ 
+     private void refreshDirtyAttributes() {
+-        Set<AttributeInstance> attributesToUpdate = this.getAttributes().getAttributesToUpdate();
++        // Nitro - Multithreaded tracker
++        int[] attributesToUpdate = this.getAttributes().getAttributesToUpdateIds();
+ 
+-        for (AttributeInstance attributeInstance : attributesToUpdate) {
+-            this.onAttributeUpdated(attributeInstance.getAttribute());
++        for (int attribute : attributesToUpdate) {
++            this.onAttributeUpdated(net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.get(attribute).orElseThrow());
+         }
+ 
+-        attributesToUpdate.clear();
++        // Nitro end - Multithreaded tracker
+     }
+ 
+     protected void onAttributeUpdated(Holder<Attribute> attribute) {
+diff --git a/net/minecraft/world/entity/ai/attributes/Attribute.java b/net/minecraft/world/entity/ai/attributes/Attribute.java
+index 69d59650b26fcb1c654d7a784022ac7f4c9230ce..0e7a7e4f90fcfeec91937b337bba7bdf71618cd5 100644
+--- a/net/minecraft/world/entity/ai/attributes/Attribute.java
++++ b/net/minecraft/world/entity/ai/attributes/Attribute.java
+@@ -16,10 +16,15 @@ public class Attribute {
+     private boolean syncable;
+     private final String descriptionId;
+     public Attribute.Sentiment sentiment = Attribute.Sentiment.POSITIVE;
++    // Nitro start - Multithreaded Tracker
++    public final int uid;
++    private static final java.util.concurrent.atomic.AtomicInteger SIZE = new java.util.concurrent.atomic.AtomicInteger();
++    // Nitro end - Multithreaded Tracker
+ 
+     protected Attribute(String descriptionId, double defaultValue) {
+         this.defaultValue = defaultValue;
+         this.descriptionId = descriptionId;
++        this.uid = SIZE.getAndAdd(1); // Nitro - Multithreaded Tracker
+     }
+ 
+     public double getDefaultValue() {
+diff --git a/net/minecraft/world/entity/ai/attributes/AttributeInstance.java b/net/minecraft/world/entity/ai/attributes/AttributeInstance.java
+index e42e6d01a8bb1bca5dea440d3f002ead68590e11..29d125a1f24c60d1fac43821d39e4143d8900710 100644
+--- a/net/minecraft/world/entity/ai/attributes/AttributeInstance.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeInstance.java
+@@ -20,8 +20,24 @@ import org.jspecify.annotations.Nullable;
+ public class AttributeInstance {
+     private final Holder<Attribute> attribute;
+     private final Map<AttributeModifier.Operation, Map<Identifier, AttributeModifier>> modifiersByOperation = Maps.newEnumMap(AttributeModifier.Operation.class);
+-    private final Map<Identifier, AttributeModifier> modifierById = new Object2ObjectArrayMap<>();
+-    private final Map<Identifier, AttributeModifier> permanentModifiers = new Object2ObjectArrayMap<>();
++    // Nitro start - Multithreaded tracker
++    private final Map<Identifier, AttributeModifier> modifierById;
++    {
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            modifierById = it.unimi.dsi.fastutil.objects.Object2ObjectMaps.synchronize(new Object2ObjectArrayMap<>(), this);
++        } else {
++            modifierById = new Object2ObjectArrayMap<>();
++        }
++    }
++    private final Map<Identifier, AttributeModifier> permanentModifiers;
++    {
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            permanentModifiers = it.unimi.dsi.fastutil.objects.Object2ObjectMaps.synchronize(new Object2ObjectArrayMap<>(), this);
++        } else {
++            permanentModifiers = new Object2ObjectArrayMap<>();
++        }
++    }
++    // Nitro end - Multithreaded tracker
+     private double baseValue;
+     private boolean dirty = true;
+     private double cachedValue;
+@@ -50,7 +66,13 @@ public class AttributeInstance {
+ 
+     @VisibleForTesting
+     Map<Identifier, AttributeModifier> getModifiers(AttributeModifier.Operation operation) {
+-        return this.modifiersByOperation.computeIfAbsent(operation, operation1 -> new Object2ObjectOpenHashMap<>());
++        // Nitro start - Multithreaded tracker
++        return this.modifiersByOperation.computeIfAbsent(operation, operation1 -> {
++            if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled)
++                return it.unimi.dsi.fastutil.objects.Object2ObjectMaps.synchronize(new Object2ObjectArrayMap<>(), this);
++            else return new Object2ObjectArrayMap<>();
++        });
++        //Nitro end - Multithreaded tracker
+     }
+ 
+     public Set<AttributeModifier> getModifiers() {
+@@ -137,10 +159,13 @@ public class AttributeInstance {
+ 
+     public double getValue() {
+         if (this.dirty) {
+-            this.cachedValue = this.calculateValue();
++            // Nitro start - Multithreaded tracker
++            double value = this.calculateValue();
++            this.cachedValue = value;
+             this.dirty = false;
++            return value;
++            // Nitro end - Multithreaded tracker
+         }
+-
+         return this.cachedValue;
+     }
+ 
+@@ -181,7 +206,15 @@ public class AttributeInstance {
+     }
+ 
+     public AttributeInstance.Packed pack() {
+-        return new AttributeInstance.Packed(this.attribute, this.baseValue, List.copyOf(this.permanentModifiers.values()));
++        // Nitro start - Multithreaded tracker
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            synchronized (this) {
++                return new AttributeInstance.Packed(this.attribute, this.baseValue, List.copyOf(this.permanentModifiers.values()));
++            }
++        } else {
++            return new AttributeInstance.Packed(this.attribute, this.baseValue, List.copyOf(this.permanentModifiers.values()));
++        }
++        // Nitro end - Multithreaded tracker
+     }
+ 
+     public void apply(AttributeInstance.Packed instance) {
+diff --git a/net/minecraft/world/entity/ai/attributes/AttributeMap.java b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+index fbd69d7320d116818bc66b27338889306b87ec83..9cee342319d45a80b8a731ca4ff435dcb5177c2f 100644
+--- a/net/minecraft/world/entity/ai/attributes/AttributeMap.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeMap.java
+@@ -14,9 +14,11 @@ import net.minecraft.resources.Identifier;
+ import org.jspecify.annotations.Nullable;
+ 
+ public class AttributeMap {
+-    private final Map<Holder<Attribute>, AttributeInstance> attributes = new Object2ObjectOpenHashMap<>();
+-    private final Set<AttributeInstance> attributesToSync = new ObjectOpenHashSet<>();
+-    private final Set<AttributeInstance> attributesToUpdate = new ObjectOpenHashSet<>();
++    // Nitro start - Multithreaded tracker
++    private final Map<Holder<Attribute>, AttributeInstance> attributes = new gr1mly4memes.nitro.util.map.AttributeInstanceArrayMap();
++    private final gr1mly4memes.nitro.util.map.AttributeInstanceSet attributesToSync =  new gr1mly4memes.nitro.util.map.AttributeInstanceSet((gr1mly4memes.nitro.util.map.AttributeInstanceArrayMap) attributes);
++    private final gr1mly4memes.nitro.util.map.AttributeInstanceSet attributesToUpdate = new gr1mly4memes.nitro.util.map.AttributeInstanceSet((gr1mly4memes.nitro.util.map.AttributeInstanceArrayMap) attributes);
++    // Nitro end - Multithreaded tracker
+     private final AttributeSupplier supplier;
+     private final net.minecraft.world.entity.LivingEntity entity; // Purpur - Ridables
+     private final java.util.function.Function<Holder<Attribute>, AttributeInstance> createInstance; // Nitro // Pufferfish
+@@ -34,27 +36,49 @@ public class AttributeMap {
+         };
+     }
+ 
+-    private void onAttributeModified(AttributeInstance instance) {
++    private synchronized void onAttributeModified(AttributeInstance instance) { // Nitro - Multithreaded Tracker
+         this.attributesToUpdate.add(instance);
+         if (instance.getAttribute().value().isClientSyncable() && (entity == null || entity.shouldSendAttribute(instance.getAttribute().value()))) { // Purpur - Ridables
+             this.attributesToSync.add(instance);
+         }
+     }
+ 
+-    public Set<AttributeInstance> getAttributesToSync() {
+-        return this.attributesToSync;
++    // Nitro start - Multithreaded Tracker
++    private static final AttributeInstance[] EMPTY_ATTRIBUTE_INSTANCE = new AttributeInstance[0];
++    public synchronized Set<AttributeInstance> getAttributesToSync() {
++        var clone = it.unimi.dsi.fastutil.objects.ReferenceArraySet.ofUnchecked(attributesToSync.toArray(EMPTY_ATTRIBUTE_INSTANCE));
++        this.attributesToSync.clear();
++        return clone;
+     }
+ 
+-    public Set<AttributeInstance> getAttributesToUpdate() {
+-        return this.attributesToUpdate;
++    public synchronized Set<AttributeInstance> getAttributesToUpdate() {
++        var clone = it.unimi.dsi.fastutil.objects.ReferenceArraySet.ofUnchecked(attributesToUpdate.toArray(EMPTY_ATTRIBUTE_INSTANCE));
++        this.attributesToUpdate.clear();
++        return clone;
+     }
++    public synchronized int[] getAttributesToUpdateIds() {
++        int[] clone = attributesToUpdate.inner.toIntArray();
++        this.attributesToUpdate.clear();
++        return clone;
++    }
++    // Nitro end - Multithreaded Tracker
+ 
+     public Collection<AttributeInstance> getSyncableAttributes() {
+         return this.attributes.values().stream().filter(instance -> instance.getAttribute().value().isClientSyncable() && (entity == null || entity.shouldSendAttribute(instance.getAttribute().value()))).collect(Collectors.toList()); // Purpur - Ridables
+     }
+ 
+     public @Nullable AttributeInstance getInstance(Holder<Attribute> attribute) {
+-        return this.attributes.computeIfAbsent(attribute, createInstance);
++        // Nitro start - Multithreaded Tracker
++        AttributeInstance v;
++        if ((v = this.attributes.get(attribute)) == null) {
++            AttributeInstance newValue;
++            if ((newValue = this.supplier.createInstance(this::onAttributeModified, attribute)) != null) {
++                attributes.put(attribute, newValue);
++                return newValue;
++            }
++        }
++        return v;
++        // Nitro end - Multithreaded Tracker
+     }
+ 
+     public boolean hasAttribute(Holder<Attribute> attribute) {
+diff --git a/net/minecraft/world/entity/ai/attributes/AttributeSupplier.java b/net/minecraft/world/entity/ai/attributes/AttributeSupplier.java
+index 8bf6b76277c529433dbf541dee23156bbb94c946..10ced1bcc68f100209585c008ccf54c0ca93fa0f 100644
+--- a/net/minecraft/world/entity/ai/attributes/AttributeSupplier.java
++++ b/net/minecraft/world/entity/ai/attributes/AttributeSupplier.java
+@@ -11,7 +11,7 @@ public class AttributeSupplier {
+     private final Map<Holder<Attribute>, AttributeInstance> instances;
+ 
+     AttributeSupplier(Map<Holder<Attribute>, AttributeInstance> instances) {
+-        this.instances = instances;
++        this.instances = new gr1mly4memes.nitro.util.map.AttributeInstanceArrayMap(instances); // Nitro - Multithreaded Tracker
+     }
+ 
+     public AttributeInstance getAttributeInstance(Holder<Attribute> attribute) {
+diff --git a/net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.java b/net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.java
+index 84b11654411eaa561a9b58ffa1210ca3d3b5a7cd..22a0b5148c85bfb3270ab332676f7e7c1a297ca5 100644
+--- a/net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.java
++++ b/net/minecraft/world/entity/vehicle/minecart/NewMinecartBehavior.java
+@@ -34,13 +34,20 @@ public class NewMinecartBehavior extends MinecartBehavior {
+     private int cachedLerpDelay;
+     private float cachedPartialTick;
+     private int lerpDelay = 0;
+-    public final List<NewMinecartBehavior.MinecartStep> lerpSteps = new LinkedList<>();
++    public final List<NewMinecartBehavior.MinecartStep> lerpSteps; // Nitro - Multithreaded Tracker
+     public final List<NewMinecartBehavior.MinecartStep> currentLerpSteps = new LinkedList<>();
+     public double currentLerpStepsTotalWeight = 0.0;
+     public NewMinecartBehavior.MinecartStep oldLerp = NewMinecartBehavior.MinecartStep.ZERO;
+ 
+     public NewMinecartBehavior(AbstractMinecart minecart) {
+         super(minecart);
++        // Nitro start - Multithreaded Tracker
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++            this.lerpSteps = it.unimi.dsi.fastutil.objects.ObjectLists.synchronize(new it.unimi.dsi.fastutil.objects.ObjectArrayList<>());
++        } else {
++            this.lerpSteps = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>();
++        }
++        // Nitro end - Multithreaded Tracker
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+index cd2719b0ac30654ce7e8247850f4512810b352e6..76da4dd5615d11a8c5ae374ef1091a3a80825640 100644
+--- a/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
++++ b/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
+@@ -213,6 +213,7 @@ public class MapItemSavedData extends SavedData {
+ 
+         for (int i = 0; i < this.carriedBy.size(); i++) {
+             MapItemSavedData.HoldingPlayer holdingPlayer1 = this.carriedBy.get(i);
++            if (holdingPlayer1 == null) continue; // Nitro - Multithreaded tracker
+             Player player1 = holdingPlayer1.player;
+             String plainTextName = player1.getPlainTextName();
+             if (!player1.isRemoved() && (player1.getInventory().contains(predicate) || mapStack.isFramed())) {

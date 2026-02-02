@@ -89,10 +89,8 @@ public final class NitroConfig {
     // Nitro start - features
     @GlobalConfig(name = "disable-packet-limit", category = {"features"})
     public static boolean disablePacketLimit = false;
-
     @GlobalConfig(name = "disableMovedWronglyThreshold", category = {"features"})
     public static boolean disableMovedWronglyThreshold = false;
-
     @GlobalConfig(name = "enable-books", category = {"features"})
     public static boolean enableBooks = true;
     // Nitro end - features
@@ -100,16 +98,12 @@ public final class NitroConfig {
     // Nitro start - Optimizations
     @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
     public static boolean useCompactBitStorage = true;
-
     @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
     public static int maxProjectileLoadsPerTick = 10;
-
     @GlobalConfig(name = "projectile.max-loads-per-projectile", category = {"Optimizations"})
     public static int maxProjectileLoadsPerProjectile = 10;
-
     @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
     public static boolean enableSuffocationOptimization = true;
-
     @GlobalConfig(name = "enable-async-mob-spawning", category = {"Optimizations"})
     public static boolean enableAsyncMobSpawning = true;
     // Runtime value (reload-safe)
@@ -122,6 +116,16 @@ public final class NitroConfig {
             runtimeAsyncMobSpawning = enableAsyncMobSpawning;
         }
     }
+    @GlobalConfig(name = "multithreaded-enabled", category = {"Optimizations"})
+    public static boolean multithreadedEnabled = true;
+    @GlobalConfig(name = "multithreaded-compact-mode-enabled", category = {"Optimizations"})
+    public static boolean multithreadedCompactModeEnabled = false;
+    @GlobalConfig(name = "async-entity-tracker-max-threads", category = {"Optimizations"})
+    public static int asyncEntityTrackerMaxThreads = 1;
+    @GlobalConfig(name = "async-entity-tracker-keepalive", category = {"Optimizations"})
+    public static int asyncEntityTrackerKeepalive = 60;
+    @GlobalConfig(name = "async-entity-tracker-queue-size", category = {"Optimizations"})
+    public static int asyncEntityTrackerQueueSize = 0;
     // Nitro end - Optimizations
 
     // Nitro start - region
@@ -160,16 +164,12 @@ public final class NitroConfig {
 
     @GlobalConfig(name = "io-thread-count", category = {"region", "linear"}, lock = true, verify = ConfigVerify.IntConfigVerify.class)
     public static int linearIoThreadCount = 6;
-
     @GlobalConfig(name = "io-flush-delay-ms", category = {"region", "linear"}, lock = true, verify = ConfigVerify.IntConfigVerify.class)
     public static int linearIoFlushDelayMs = 100;
-
     @GlobalConfig(name = "use-virtual-thread", category = {"region", "linear"})
     public static boolean linearUseVirtualThread = true;
-
     @GlobalConfig(name = "flush-max-threads", category = {"region", "linear"}, lock = true, verify = ConfigVerify.IntConfigVerify.class)
     public static int linearFlushThreads = 1;
-
     public static int getLinearFlushThreads() {
         if (linearFlushThreads < 0) {
             return Math.max(Runtime.getRuntime().availableProcessors() + linearFlushThreads, 1);

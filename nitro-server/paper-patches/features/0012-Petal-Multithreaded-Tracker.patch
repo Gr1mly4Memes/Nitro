@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 1 Feb 2026 15:37:43 -0800
+Subject: [PATCH] Petal-Multithreaded-Tracker
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..5f39c0b5ce62d15e930346f0719c2d098ff5e73b 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+@@ -39,6 +39,12 @@ class PaperEventManager {
+         if (event.isAsynchronous() && this.server.isPrimaryThread()) {
+             throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
+         } else if (!event.isAsynchronous() && !this.server.isPrimaryThread() && !this.server.isStopping()) {
++            // Nitro start - Multithreaded Tracker
++            if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled) {
++                net.minecraft.server.MinecraftServer.getServer().scheduleOnMain(event::callEvent);
++                return;
++            }
++            // Nitro end - Multithreaded Tracker
+             throw new IllegalStateException(event.getEventName() + " may only be triggered synchronously.");
+         }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+index cf2997aba96cf930b7cdab8e6ff4334f2b822a70..704bb48725f26a839ddb5ba2fbe1c1d79383d789 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
+@@ -2719,7 +2719,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         Iterator<AttributeInstance> iterator = collection.iterator();
+         while (iterator.hasNext()) {
+             AttributeInstance genericInstance = iterator.next();
+-            if (genericInstance.getAttribute() == Attributes.MAX_HEALTH) {
++            if (genericInstance != null && genericInstance.getAttribute() == Attributes.MAX_HEALTH) { // Nitro  - Multithreaded Tracker
+                 iterator.remove();
+                 break;
+             }
+diff --git a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+index de1ffa1f2a8b8331f484a7a6546f4b29e2c853c6..b9fc368b2491f4497ea9dacd53e93a079e693c3b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
++++ b/src/main/java/org/bukkit/craftbukkit/event/CraftEventFactory.java
+@@ -1930,6 +1930,23 @@ public class CraftEventFactory {
+     }
+ 
+     public static boolean handleBlockFormEvent(Level world, BlockPos pos, net.minecraft.world.level.block.state.BlockState state, @net.minecraft.world.level.block.Block.UpdateFlags int flags, @Nullable Entity entity, boolean checkSetResult) {
++        // Nitro start - Multithreaded Tracker
++        if (gr1mly4memes.nitro.NitroConfig.multithreadedEnabled && Thread.currentThread() instanceof gr1mly4memes.nitro.async.tracking.MultithreadedTracker.MultithreadedTrackerThread) {
++            java.util.concurrent.CompletableFuture<Boolean> future = new java.util.concurrent.CompletableFuture<>();
++            net.minecraft.server.MinecraftServer.getServer().scheduleOnMain(() -> {
++                boolean resultFlag = false;
++                CraftBlockState snapshot = CraftBlockStates.getBlockState(world, pos);
++                snapshot.setData(state);
++                BlockFormEvent event = (entity == null) ? new BlockFormEvent(snapshot.getBlock(), snapshot) : new EntityBlockFormEvent(entity.getBukkitEntity(), snapshot.getBlock(), snapshot);
++                if (event.callEvent()) {
++                    boolean result = snapshot.place(flags);
++                    resultFlag = !checkSetResult || result;
++                }
++                future.complete(resultFlag);
++            });
++            return future.join();
++        }
++        // Nitro end - Multithreaded Tracker
+         CraftBlockState snapshot = CraftBlockStates.getBlockState(world, pos);
+         snapshot.setData(state);
+ 
