@@ -104,7 +104,7 @@ public final class NitroConfig {
     public static int maxProjectileLoadsPerProjectile = 10;
     @GlobalConfig(name = "enable-suffocation-optimization", category = {"Optimizations"})
     public static boolean enableSuffocationOptimization = true;
-    @GlobalConfig(name = "enable-async-mob-spawning", category = {"Optimizations"})
+    @GlobalConfig(name = "enable-async-mob-spawning", category = {"Optimizations", "Async"})
     public static boolean enableAsyncMobSpawning = true;
     // Runtime value (reload-safe)
     public static boolean runtimeAsyncMobSpawning;
@@ -116,16 +116,17 @@ public final class NitroConfig {
             runtimeAsyncMobSpawning = enableAsyncMobSpawning;
         }
     }
-    @GlobalConfig(name = "multithreaded-enabled", category = {"Optimizations"})
+    @GlobalConfig(name = "multithreaded-enabled", category = {"Optimizations", "Async"})
     public static boolean multithreadedEnabled = true;
-    @GlobalConfig(name = "multithreaded-compact-mode-enabled", category = {"Optimizations"})
+    @GlobalConfig(name = "multithreaded-compact-mode-enabled", category = {"Optimizations", "Async"})
     public static boolean multithreadedCompactModeEnabled = false;
-    @GlobalConfig(name = "async-entity-tracker-max-threads", category = {"Optimizations"})
+    @GlobalConfig(name = "async-entity-tracker-max-threads", category = {"Optimizations", "Async"})
     public static int asyncEntityTrackerMaxThreads = 1;
-    @GlobalConfig(name = "async-entity-tracker-keepalive", category = {"Optimizations"})
+    @GlobalConfig(name = "async-entity-tracker-keepalive", category = {"Optimizations", "Async"})
     public static int asyncEntityTrackerKeepalive = 60;
-    @GlobalConfig(name = "async-entity-tracker-queue-size", category = {"Optimizations"})
+    @GlobalConfig(name = "async-entity-tracker-queue-size", category = {"Optimizations", "Async"})
     public static int asyncEntityTrackerQueueSize = 0;
+
     // Nitro end - Optimizations
 
     // Nitro start - region

@@ -143,7 +143,9 @@ public class MultithreadedTracker {
 
     private static BlockingQueue<Runnable> getQueueImpl() {
         final int queueCapacity = NitroConfig.asyncEntityTrackerQueueSize;
-
+        if (queueCapacity <= 0) {
+            return new LinkedBlockingQueue<>();
+        }
         return new LinkedBlockingQueue<>(queueCapacity);
     }
 

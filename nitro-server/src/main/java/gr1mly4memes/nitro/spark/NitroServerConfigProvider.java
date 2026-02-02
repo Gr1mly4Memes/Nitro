@@ -107,7 +107,7 @@ public class NitroServerConfigProvider extends ServerConfigProvider {
             .put(getPath("spigot-settings"), YamlConfigParser.INSTANCE)
             .put("paper/", SplitYamlConfigParser.INSTANCE)
             .put(getPath("purpur-settings"), YamlConfigParser.INSTANCE)
-            .put(getPath("divinemc-settings"), YamlConfigParser.INSTANCE);
+            .put(getPath("nitro-settings"), YamlConfigParser.INSTANCE);
 
         for (String config : getSystemPropertyList("spark.serverconfigs.extra")) {
             files.put(config, YamlConfigParser.INSTANCE);
@@ -128,7 +128,6 @@ public class NitroServerConfigProvider extends ServerConfigProvider {
             .add("world-settings.*.seed-*")
             .add("feature-seeds")
             .add("seed-*")
-            .add("sentry.dsn")
             .addAll(getSystemPropertyList("spark.serverconfigs.hiddenpaths"));
 
         FILES = files.build();
