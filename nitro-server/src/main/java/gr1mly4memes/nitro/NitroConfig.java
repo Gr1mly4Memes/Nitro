@@ -258,4 +258,9 @@ public final class NitroConfig {
     @GlobalConfig(name = "time-acceleration", category = {"Lag Compensation"})
     public static boolean timeAcceleration = true;
     // Nitro end - Lag compensation
+
+    // Nitro start - World Generation
+    @GlobalConfig(name = "amplified-world", category = {"World Generation"})
+    public static boolean amplifiedWorld = false;
+    // Nitro end - World Generation
 }
