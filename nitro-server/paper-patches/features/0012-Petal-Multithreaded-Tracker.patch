@@ -5,10 +5,10 @@ Subject: [PATCH] Petal-Multithreaded-Tracker
 
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-index 7ce9ebba8ce304d1f3f21d4f15ee5f3560d7700b..5f39c0b5ce62d15e930346f0719c2d098ff5e73b 100644
+index ace9fc6dd3ee45f797515c415fcfa4e87b4f2885..8583003dfa62eab0f8c06efa6465e5b8697dc892 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-@@ -39,6 +39,12 @@ class PaperEventManager {
+@@ -43,6 +43,12 @@ class PaperEventManager {
          if (event.isAsynchronous() && this.server.isPrimaryThread()) {
              throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
          } else if (!event.isAsynchronous() && !this.server.isPrimaryThread() && !this.server.isStopping()) {

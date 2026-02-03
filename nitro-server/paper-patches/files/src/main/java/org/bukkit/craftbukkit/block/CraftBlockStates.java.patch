@@ -1,0 +1,11 @@
+--- a/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/CraftBlockStates.java
+@@ -186,7 +_,7 @@
+     }
+ 
+     public static BlockState getBlockState(Block block) {
+-        return CraftBlockStates.getBlockState(block, true);
++        return CraftBlockStates.getBlockState(block, gr1mly4memes.nitro.NitroConfig.createSnapshotOnRetrievingBlockState); // Nitro - EMC: Don't use snapshots for acquiring blockstate
+     }
+ 
+     public static BlockState getBlockState(Block block, boolean useSnapshot) {

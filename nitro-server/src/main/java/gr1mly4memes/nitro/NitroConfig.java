@@ -93,11 +93,13 @@ public final class NitroConfig {
     public static boolean disableMovedWronglyThreshold = false;
     @GlobalConfig(name = "enable-books", category = {"features"})
     public static boolean enableBooks = true;
+    @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
+    public static boolean useCompactBitStorage = true;
     // Nitro end - features
 
     // Nitro start - Optimizations
-    @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
-    public static boolean useCompactBitStorage = true;
+    @GlobalConfig(name = "create-snapshot-on-retrieving-block-state", category = {"Optimizations"})
+    public static boolean createSnapshotOnRetrievingBlockState = true;
     @GlobalConfig(name = "projectile.max-loads-per-tick", category = {"Optimizations"})
     public static int maxProjectileLoadsPerTick = 10;
     @GlobalConfig(name = "projectile.max-loads-per-projectile", category = {"Optimizations"})
@@ -126,6 +128,8 @@ public final class NitroConfig {
     public static int asyncEntityTrackerKeepalive = 60;
     @GlobalConfig(name = "async-entity-tracker-queue-size", category = {"Optimizations", "Async"})
     public static int asyncEntityTrackerQueueSize = 0;
+    @GlobalConfig(name = "max-view-distance", category = {"Optimizations", "Chunk"})
+    public static int maxViewDistance = 32;
 
     // Nitro end - Optimizations
 
@@ -215,6 +219,8 @@ public final class NitroConfig {
     public static boolean allowEndCrystalRespawn = true;
     @GlobalConfig(name = "disable-spawner-on-low-tps", category = {"Miscellaneous"})
     public static int spawnerTpsThreshold = 15;
+    @GlobalConfig(name = "force-minecraft-command", category = {"Miscellaneous"})
+    public static boolean forceMinecraftCommand = false;
     // Nitro end - Miscellaneous
 
     // Nitro start - Parallel World Ticking
