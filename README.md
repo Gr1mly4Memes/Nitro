@@ -12,6 +12,7 @@ Nitro is a fork of [Purpur](https://github.com/PurpurMC/Purpur), which focuses o
 - **Parallel World Ticking** - Leverage multiple CPU cores for world processing
 - **Linear Region File Format** - Optimize your world with the old V1/V2 linear format
 - **Fully Compatible** - Works seamlessly with Bukkit, Spigot and Paper plugins
+- **Reduction in network-related load** - 20% reduction and 97% reduction in Packet-Per-Second
 - **Most Pufferfish Patches** - For the good performance
 
 *...and some more*
@@ -28,7 +29,7 @@ Run the following commands in the root directory:
 Nitro is licensed under the GNU General Public License v3.0. You can find the license [here](LICENSE).
 
 ## 📜 Credits
-Nitro includes patches from other projects, and without these projects, Nitro wouldn't exist today. Here is the list of projects that Nitro takes patches from:
+Nitro includes patches and features from other projects, and without these projects, Nitro wouldn't exist today. Here is the list of projects that Nitro takes patches from:
 
 - [Purpur](https://github.com/PurpurMC/Purpur)
 - [Leaves](https://github.com/LeavesMC/Leaves)
@@ -38,6 +39,7 @@ Nitro includes patches from other projects, and without these projects, Nitro wo
 - [DivineMC](https://github.com/BX-Team/DivineMC)
 - [Pufferfish](https://github.com/pufferfish-gg/Pufferfish)
 - [Horizon](https://github.com/GideonWhite1029/Horizon)
+- [PulseMC](https://github.com/Pulse-MC/Pulse-Paper)
 
 
 
