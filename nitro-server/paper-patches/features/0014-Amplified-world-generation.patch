@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Fri, 6 Feb 2026 20:52:04 -0800
+Subject: [PATCH] Amplified world generation
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 665ceb2bc90b839d85d39d0aed1efe05f2fa3eb4..ec95a4766e14f6985c36c58728194b99dc2661f8 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -55,6 +55,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.core.registries.Registries;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.resources.Identifier;
++import net.minecraft.core.Holder;
++import net.minecraft.core.HolderLookup;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.ReloadableServerRegistries;
+ import net.minecraft.server.WorldLoader;
+@@ -105,6 +107,7 @@ import net.minecraft.world.level.levelgen.PatrolSpawner;
+ import net.minecraft.world.level.levelgen.PhantomSpawner;
+ import net.minecraft.world.level.levelgen.WorldDimensions;
+ import net.minecraft.world.level.levelgen.WorldOptions;
++import net.minecraft.world.level.levelgen.presets.WorldPreset;
+ import net.minecraft.world.level.material.Fluid;
+ import net.minecraft.world.level.saveddata.maps.MapId;
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+@@ -132,6 +135,7 @@ import org.bukkit.World;
+ import org.bukkit.World.Environment;
+ import org.bukkit.WorldBorder;
+ import org.bukkit.WorldCreator;
++import org.bukkit.WorldType;
+ import org.bukkit.block.BlockType;
+ import org.bukkit.block.data.BlockData;
+ import org.bukkit.boss.BarColor;
+@@ -1260,6 +1264,20 @@ public final class CraftServer implements Server {
+                 context.dataConfiguration()
+             );
+             worldDimensions = properties.create(context.datapackWorldgen());
++            
++            // Nitro start - Amplified world generation
++            if (gr1mly4memes.nitro.NitroConfig.enableAmplifiedWorldGeneration && 
++                creator.environment() == Environment.NORMAL && 
++                !creator.type().equals(WorldType.AMPLIFIED)) {
++                HolderLookup<WorldPreset> holderLookup = context.datapackWorldgen().lookupOrThrow(Registries.WORLD_PRESET);
++                Optional<? extends Holder<WorldPreset>> amplifiedHolderOptional = holderLookup.get(net.minecraft.world.level.levelgen.presets.WorldPresets.AMPLIFIED);
++                if (amplifiedHolderOptional.isPresent()) {
++                    Holder<WorldPreset> amplifiedHolder = amplifiedHolderOptional.get();
++                    WorldDimensions amplifiedDimensions = amplifiedHolder.value().createWorldDimensions();
++                    worldDimensions = worldDimensions.replaceOverworldGenerator(context.datapackWorldgen(), amplifiedDimensions.overworld());
++                }
++            }
++            // Nitro end - Amplified world generation
+ 
+             WorldDimensions.Complete complete = worldDimensions.bake(contextLevelStemRegistry);
+             Lifecycle lifecycle = complete.lifecycle().add(context.datapackWorldgen().allRegistriesLifecycle());

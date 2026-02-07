@@ -95,6 +95,8 @@ public final class NitroConfig {
     public static boolean enableBooks = true;
     @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
     public static boolean useCompactBitStorage = false;
+    @GlobalConfig(name = "enable-amplified-world-generation", category = {"features"})
+    public static boolean enableAmplifiedWorldGeneration = false;
     // Nitro end - features
 
     // Nitro start - Optimizations

@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Fri, 6 Feb 2026 20:52:03 -0800
+Subject: [PATCH] Amplified world generation
+
+
+diff --git a/net/minecraft/server/dedicated/DedicatedServerProperties.java b/net/minecraft/server/dedicated/DedicatedServerProperties.java
+index 2a3b10c5e031ef44a2b53bc4fdc6e86c917f75d4..f078722a30b9340f421c70e66f5d4cbc0f9693b6 100644
+--- a/net/minecraft/server/dedicated/DedicatedServerProperties.java
++++ b/net/minecraft/server/dedicated/DedicatedServerProperties.java
+@@ -284,6 +284,19 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
+                     return worldDimensions.replaceOverworldGenerator(registries, new FlatLevelSource(optional.get()));
+                 }
+             }
++            
++            // Nitro start - Amplified world generation
++            if (gr1mly4memes.nitro.NitroConfig.enableAmplifiedWorldGeneration && !holder.is(WorldPresets.AMPLIFIED)) {
++                // Get the amplified world preset
++                Optional<? extends Holder<WorldPreset>> amplifiedHolderOptional = holderLookup.get(WorldPresets.AMPLIFIED);
++                if (amplifiedHolderOptional.isPresent()) {
++                    Holder<WorldPreset> amplifiedHolder = amplifiedHolderOptional.get();
++                    WorldDimensions amplifiedDimensions = amplifiedHolder.value().createWorldDimensions();
++                    // Replace only the overworld with amplified settings
++                    return worldDimensions.replaceOverworldGenerator(registries, amplifiedDimensions.overworld());
++                }
++            }
++            // Nitro end - Amplified world generation
+ 
+             return worldDimensions;
+         }
