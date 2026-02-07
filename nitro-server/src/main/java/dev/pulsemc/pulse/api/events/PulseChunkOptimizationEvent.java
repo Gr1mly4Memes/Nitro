@@ -1,4 +1,4 @@
-package dev.pulsemc.api.events;
+package dev.pulsemc.pulse.api.events;
 
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package dev.pulsemc.config;
+package dev.pulsemc.pulse;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

@@ -1,7 +1,7 @@
-package dev.pulsemc.api.virtual.block;
+package dev.pulsemc.pulse.api.virtual.block;
 
-import dev.pulsemc.api.network.PulseNetwork;
-import dev.pulsemc.api.network.PulsePlayer;
+import dev.pulsemc.pulse.api.network.PulseNetwork;
+import dev.pulsemc.pulse.api.network.PulsePlayer;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;

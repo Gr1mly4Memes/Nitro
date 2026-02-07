@@ -1,6 +1,6 @@
-package dev.pulsemc.api.events;
+package dev.pulsemc.pulse.api.events;
 
-import dev.pulsemc.api.enums.FlushReason;
+import dev.pulsemc.pulse.api.enums.FlushReason;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

@@ -1,7 +1,7 @@
-package dev.pulsemc.network;
+package dev.pulsemc.pulse.metrics;
 
 import com.sun.management.OperatingSystemMXBean;
-import dev.pulsemc.config.ConfigManager;
+import dev.pulsemc.pulse.ConfigManager;
 
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.Executors;
@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PulseMetrics {
+public class Metrics {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
@@ -30,7 +30,7 @@ public class PulseMetrics {
     public static double vanillaCpuEst = 0;
     public static long savedAllocationsBytes = 0;
     public static long totalSavedSyscalls = 0;
-    public static double networkSpeedKbs = 0; // Скорость в КБ/с
+    public static double networkSpeedKbs = 0;
 
     public static final AtomicLong flushReasonLimit = new AtomicLong(0);
     public static final AtomicLong flushReasonTick = new AtomicLong(0);
@@ -79,10 +79,10 @@ public class PulseMetrics {
 
             // API Event
             try {
-                if (dev.pulsemc.api.events.PulseMetricUpdateEvent.getHandlerList().getRegisteredListeners().length > 0) {
+                if (dev.pulsemc.pulse.api.events.PulseMetricUpdateEvent.getHandlerList().getRegisteredListeners().length > 0) {
                     double savings = Math.max(0, vanillaCpuEst - cpuUsage);
                     org.bukkit.Bukkit.getPluginManager().callEvent(
-                        new dev.pulsemc.api.events.PulseMetricUpdateEvent(ppsLogical, ppsPhysical, networkSpeedKbs, savings)
+                        new dev.pulsemc.pulse.api.events.PulseMetricUpdateEvent(ppsLogical, ppsPhysical, networkSpeedKbs, savings)
                     );
                 }
             } catch (Exception e) {

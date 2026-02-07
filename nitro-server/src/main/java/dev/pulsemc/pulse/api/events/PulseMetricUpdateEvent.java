@@ -1,4 +1,4 @@
-package dev.pulsemc.api.events;
+package dev.pulsemc.pulse.api.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -17,7 +17,7 @@ public class PulseMetricUpdateEvent extends Event {
     private final double cpuSavings;
 
     public PulseMetricUpdateEvent(double logicalPPS, double physicalPPS, double bandwidthKB, double cpuSavings) {
-        super(true); // Always async
+        super(true);
         this.logicalPPS = logicalPPS;
         this.physicalPPS = physicalPPS;
         this.bandwidthKB = bandwidthKB;

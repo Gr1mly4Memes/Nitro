@@ -1,6 +1,7 @@
-package dev.pulsemc.network;
+package dev.pulsemc.pulse.metrics.extensions;
 
-import dev.pulsemc.config.ConfigManager;
+import dev.pulsemc.pulse.ConfigManager;
+import dev.pulsemc.pulse.metrics.Metrics;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -14,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class PulseBar {
+public class MetricsBar {
     private static final MiniMessage mm = MiniMessage.miniMessage();
     private static final BossBar bossBar = BossBar.bossBar(
         Component.empty(),
@@ -62,8 +63,8 @@ public class PulseBar {
     }
 
     private static void updateBar() {
-        double logical = Math.max(1, PulseMetrics.ppsLogical);
-        double efficiency = (logical - PulseMetrics.ppsPhysical) / logical;
+        double logical = Math.max(1, Metrics.ppsLogical);
+        double efficiency = (logical - Metrics.ppsPhysical) / logical;
 
         if (efficiency < 0) efficiency = 0;
         if (efficiency > 1) efficiency = 1;
@@ -73,7 +74,7 @@ public class PulseBar {
         else if (efficiency > 0.40) color = BossBar.Color.YELLOW;
         else color = BossBar.Color.RED;
 
-        double speed = PulseMetrics.networkSpeedKbs;
+        double speed = Metrics.networkSpeedKbs;
         String speedStr;
         if (speed > 1024) {
             speedStr = String.format("%.2f MB/s", speed / 1024.0);
@@ -85,8 +86,8 @@ public class PulseBar {
             "<bold><gradient:#FF005D:#FF0048>Pulse</gradient></bold> <dark_gray>| <white>Eff: <color:%s>%d%%</color> <dark_gray>| <white>Vanilla: <aqua>%d p/s <dark_gray>| <white>Out: <aqua>%d p/s</aqua> <gray>(%s)",
             (efficiency > 0.75 ? "#55FF55" : (efficiency > 0.4 ? "#FFFF55" : "#FF5555")),
             (int)(efficiency * 100),
-            (int) PulseMetrics.ppsLogical,
-            (int) PulseMetrics.ppsPhysical,
+            (int) Metrics.ppsLogical,
+            (int) Metrics.ppsPhysical,
             speedStr
         );
 

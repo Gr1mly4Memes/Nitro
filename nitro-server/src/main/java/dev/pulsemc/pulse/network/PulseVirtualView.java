@@ -1,4 +1,4 @@
-package dev.pulsemc.network;
+package dev.pulsemc.pulse.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;

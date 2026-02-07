@@ -94,7 +94,7 @@ public final class NitroConfig {
     @GlobalConfig(name = "enable-books", category = {"features"})
     public static boolean enableBooks = true;
     @GlobalConfig(name = "use-compact-bit-storage",category = {"features"})
-    public static boolean useCompactBitStorage = true;
+    public static boolean useCompactBitStorage = false;
     // Nitro end - features
 
     // Nitro start - Optimizations
@@ -258,9 +258,4 @@ public final class NitroConfig {
     @GlobalConfig(name = "time-acceleration", category = {"Lag Compensation"})
     public static boolean timeAcceleration = true;
     // Nitro end - Lag compensation
-
-    // Nitro start - World Generation
-    @GlobalConfig(name = "amplified-world", category = {"World Generation"})
-    public static boolean amplifiedWorld = false;
-    // Nitro end - World Generation
 }

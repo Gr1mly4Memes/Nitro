@@ -1,4 +1,4 @@
-package dev.pulsemc.api.enums;
+package dev.pulsemc.pulse.api.enums;
 
 /**
  * Represents the reason why the packet buffer was flushed to the network.

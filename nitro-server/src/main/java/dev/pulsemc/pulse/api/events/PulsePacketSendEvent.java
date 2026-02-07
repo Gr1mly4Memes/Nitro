@@ -1,4 +1,4 @@
-package dev.pulsemc.api.events;
+package dev.pulsemc.pulse.api.events;
 
 import net.minecraft.network.protocol.Packet;
 import org.bukkit.entity.Player;

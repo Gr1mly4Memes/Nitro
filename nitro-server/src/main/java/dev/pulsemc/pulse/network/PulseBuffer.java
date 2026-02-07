@@ -1,12 +1,14 @@
-package dev.pulsemc.network;
+package dev.pulsemc.pulse.network;
 
-import dev.pulsemc.api.enums.FlushReason;
-import dev.pulsemc.api.events.PulseBufferFlushEvent;
-import dev.pulsemc.api.events.PulseChunkOptimizationEvent;
-import dev.pulsemc.api.events.PulsePacketSendEvent;
-import dev.pulsemc.config.ConfigManager;
+import dev.pulsemc.pulse.ConfigManager;
+import dev.pulsemc.pulse.api.enums.FlushReason;
+import dev.pulsemc.pulse.api.events.PulseBufferFlushEvent;
+import dev.pulsemc.pulse.api.events.PulseChunkOptimizationEvent;
+import dev.pulsemc.pulse.api.events.PulsePacketSendEvent;
+import dev.pulsemc.pulse.metrics.Metrics;
 import io.netty.channel.ChannelFutureListener;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
@@ -70,7 +72,7 @@ public class PulseBuffer {
             return;
         }
 
-        PulseMetrics.logicalCounter.incrementAndGet();
+        Metrics.logicalCounter.incrementAndGet();
 
         // compatibility.emulate-events
         boolean canOptimize = true;
@@ -88,7 +90,7 @@ public class PulseBuffer {
                 if (event.isForceSendImmediately()) {
                     flush(FlushReason.INSTANT);
                     listener.connection.send(packet, sendListener, true);
-                    PulseMetrics.physicalCounter.incrementAndGet();
+                    Metrics.physicalCounter.incrementAndGet();
                     return;
                 }
             }
@@ -104,7 +106,7 @@ public class PulseBuffer {
         if (isCritical(packet) || ConfigManager.instantPackets.contains(packetName)) {
             flush(FlushReason.INSTANT);
             listener.connection.send(packet, sendListener, true);
-            PulseMetrics.physicalCounter.incrementAndGet();
+            Metrics.physicalCounter.incrementAndGet();
             return;
         }
 
@@ -147,12 +149,12 @@ public class PulseBuffer {
             }
         }
 
-        PulseMetrics.totalBytesSent.addAndGet(pending);
+        Metrics.totalBytesSent.addAndGet(pending);
         listener.connection.flushChannel();
 
         bufferedCount.set(0);
         currentBatchBytes.set(0);
-        PulseMetrics.physicalCounter.incrementAndGet();
+        Metrics.physicalCounter.incrementAndGet();
     }
 
     public void flush() {
@@ -276,7 +278,7 @@ public class PulseBuffer {
                     }
 
                     if (shouldOptimize) {
-                        PulseMetrics.optimizedChunks.incrementAndGet();
+                        Metrics.optimizedChunks.incrementAndGet();
                         ClientboundLevelChunkWithLightPacket chunkPacket = new ClientboundLevelChunkWithLightPacket(chunk, gameListener.player.level().getLightEngine(), null, null);
                         queuePacketToNetty(chunkPacket, null);
                     } else {
@@ -293,7 +295,8 @@ public class PulseBuffer {
 
     private boolean isBlockUpdate(Packet<?> packet) {
         return packet instanceof ClientboundBlockUpdatePacket ||
-            packet instanceof ClientboundSectionBlocksUpdatePacket;
+            packet instanceof ClientboundSectionBlocksUpdatePacket ||
+            packet instanceof ClientboundBlockEntityDataPacket;
     }
 
     private void queuePacketToNetty(Packet<?> packet, ChannelFutureListener listenerCb) {
@@ -310,6 +313,8 @@ public class PulseBuffer {
             return ChunkPos.asLong(blockPacket.getPos());
         } else if (packet instanceof ClientboundSectionBlocksUpdatePacket sectionPacket) {
             return sectionPacket.sectionPos.chunk().toLong();
+        } else if (packet instanceof ClientboundBlockEntityDataPacket dataPacket) {
+            return ChunkPos.asLong(dataPacket.getPos());
         }
         return 0;
     }

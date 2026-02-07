@@ -1,6 +1,6 @@
-package dev.pulsemc.api.network;
+package dev.pulsemc.pulse.api.network;
 
-import dev.pulsemc.network.PulseBuffer;
+import dev.pulsemc.pulse.network.PulseBuffer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
