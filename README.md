@@ -12,7 +12,7 @@ Nitro is a fork of [Purpur](https://github.com/PurpurMC/Purpur), which focuses o
 - **Parallel World Ticking** - Leverage multiple CPU cores for world processing
 - **Linear Region File Format** - Optimize your world with the old V1/V2 linear format
 - **Fully Compatible** - Works seamlessly with Bukkit, Spigot and Paper plugins
-- **Reduction in network-related load** - 20% reduction and 97% reduction in Packet-Per-Second
+<!-- - **Reduction in network-related load** - 20% reduction and 97% reduction in Packet-Per-Second -->
 - **Most Pufferfish Patches** - For the good performance
 
 *...and some more*
