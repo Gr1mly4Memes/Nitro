@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Sun, 15 Feb 2026 14:28:17 -0800
+Subject: [PATCH] Andrenaline Rush
+
+
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 9312a20c37329f2892e0b6231566bb1f96e1e7ac..5f6a97a94a02bd883e1e202c95aa2d3248e7a88d 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -182,6 +182,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+     public int burpDelay = 0; // Purpur - Burp delay
+     public boolean canPortalInstant = false; // Purpur - Add portal permission bypass
+     public int sixRowEnderchestSlotCount = -1; // Purpur - Barrels and enderchests 6 rows
++    public int adrenalineCooldown = 0; // Nitro - Adrenaline Rush
+ 
+     // CraftBukkit start
+     public boolean fauxSleeping;
+@@ -342,6 +343,18 @@ public abstract class Player extends Avatar implements ContainerUser {
+         }
+         // Purpur end - Full netherite armor grants fire resistance
+ 
++        // Nitro start - Adrenaline Rush
++        if (this.adrenalineCooldown > 0) {
++            this.adrenalineCooldown--;
++        }
++        if (gr1mly4memes.nitro.NitroConfig.adrenalineEnabled && this.getHealth() <= gr1mly4memes.nitro.NitroConfig.adrenalineHealthThreshold && !this.isDeadOrDying() && this.adrenalineCooldown <= 0) {
++            this.addEffect(new MobEffectInstance(MobEffects.SPEED, gr1mly4memes.nitro.NitroConfig.adrenalineDuration, 1, false, false, true));
++            this.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, gr1mly4memes.nitro.NitroConfig.adrenalineDuration, 0, false, false, true));
++            this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, gr1mly4memes.nitro.NitroConfig.adrenalineDuration, 0, false, false, true));
++            this.adrenalineCooldown = gr1mly4memes.nitro.NitroConfig.adrenalineCooldown;
++        }
++        // Nitro end - Adrenaline Rush
++
+         this.cooldowns.tick();
+         this.updatePlayerPose();
+         if (this.currentImpulseContextResetGraceTime > 0) {
+@@ -757,6 +770,11 @@ public abstract class Player extends Avatar implements ContainerUser {
+         } else if (damageSource.is(DamageTypeTags.IS_DROWNING)) {
+             return !level.getGameRules().get(GameRules.DROWNING_DAMAGE);
+         } else if (damageSource.is(DamageTypeTags.IS_FALL)) {
++            // Nitro start - Adrenaline Rush
++            if (gr1mly4memes.nitro.NitroConfig.adrenalineEnabled && gr1mly4memes.nitro.NitroConfig.adrenalineBlockFallDamage && this.adrenalineCooldown > 0) {
++                return true;
++            }
++            // Nitro end - Adrenaline Rush
+             return !level.getGameRules().get(GameRules.FALL_DAMAGE);
+         } else {
+             return damageSource.is(DamageTypeTags.IS_FIRE)

@@ -97,6 +97,18 @@ public final class NitroConfig {
     public static boolean useCompactBitStorage = false;
     @GlobalConfig(name = "enable-amplified-world-generation", category = {"features"})
     public static boolean enableAmplifiedWorldGeneration = false;
+    // Nitro start - Adrenaline Rush
+    @GlobalConfig(name = "adrenaline-enabled", category = {"features", "Adrenaline"})
+    public static boolean adrenalineEnabled = false;
+    @GlobalConfig(name = "andrenaline-health-threshold", category = {"features", "Adrenaline"})
+    public static double adrenalineHealthThreshold = 6.0; // when player health is <= this value, grant effects
+    @GlobalConfig(name = "adrenaline-duration", category = {"features", "Adrenaline"})
+    public static int adrenalineDuration = 100; // 5 seconds
+    @GlobalConfig(name = "adrenaline-cooldown", category = {"features", "Adrenaline"})
+    public static int adrenalineCooldown = 400; // 20 seconds
+    @GlobalConfig(name = "adrenaline-block-fall-damage", category = {"features", "Adrenaline"})
+    public static boolean adrenalineBlockFallDamage = true;
+    // Nitro end - Adrenaline Rush
     // Nitro end - features
 
     // Nitro start - Optimizations
