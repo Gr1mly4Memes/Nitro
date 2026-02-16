@@ -109,6 +109,16 @@ public final class NitroConfig {
     @GlobalConfig(name = "adrenaline-block-fall-damage", category = {"features", "Adrenaline"})
     public static boolean adrenalineBlockFallDamage = true;
     // Nitro end - Adrenaline Rush
+    // Nitro start - Sleep Bonus
+    @GlobalConfig(name = "sleepBonusEnabled", category = {"features", "sleep-bonus"})
+    public static boolean sleepBonusEnabled = true;
+    @GlobalConfig(name = "sleepBonusEffect", category = {"features", "sleep-bonus"})
+    public static String sleepBonusEffect = "REGENERATION";
+    @GlobalConfig(name = "sleepBonusDuration", category = {"features", "sleep-bonus"})
+    public static int sleepBonusDuration = 600;
+    @GlobalConfig(name = "sleepBonusAmplifier", category = {"features", "sleep-bonus"})
+    public static int sleepBonusAmplifier = 0;
+    // Nitro end - Sleep Bonus
     // Nitro end - features
 
     // Nitro start - Optimizations
