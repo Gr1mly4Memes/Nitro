@@ -1,0 +1,147 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 16 Feb 2026 18:07:07 -0800
+Subject: [PATCH] Leaf-Rewrite-entity-despawn-time
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index ba01962fadeec30988f414c5adb8d1b821609597..803506f53a836dce2ce9d8197bf00062abe24b4a 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -1496,6 +1496,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         } else {entity.inactiveTick();} // Paper - EAR 2
+         profilerFiller.pop();
+ 
++            entity.updateLastTick(); // Nitro - Rewrite entity despawn time
++
+         for (Entity entity1 : entity.getPassengers()) {
+             this.tickPassenger(entity, entity1, isActive); // Paper - EAR 2
+         }
+@@ -1531,6 +1533,8 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+             // Paper end - EAR 2
+             profilerFiller.pop();
+ 
++            passengerEntity.updateLastTick(); // Nitro - Rewrite entity despawn time
++
+             for (Entity entity : passengerEntity.getPassengers()) {
+                 this.tickPassenger(passengerEntity, entity, isActive); // Paper - EAR 2
+             }
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 419b22c6b9f976a43a14d0ed6d3ef7f054e97538..0d6893c9d987e93432ccf1f22e8ba873416bb784 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -369,6 +369,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+     public boolean fixedPose = false; // Paper - Expand Pose API
+     private final int despawnTime; // Paper - entity despawn time limit
+     public int totalEntityAge; // Paper - age-like counter for all entities
++    private int lastTickTime; // Nitro - Rewrite entity despawn time
+     public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Nitro // Pufferfish - reduce entity allocations
+     public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
+     // Paper start - EAR 2
+@@ -396,6 +397,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+     private int sectionY = Integer.MIN_VALUE;
+     private int sectionZ = Integer.MIN_VALUE;
+     private boolean updatingSectionStatus;
++    private final boolean shouldSkipBaseDespawnCheck = this instanceof net.minecraft.world.entity.projectile.ThrowableProjectile; // Nitro - Rewrite entity despawn time
+ 
+     @Override
+     public final boolean moonrise$isHardColliding() {
+@@ -597,6 +599,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+         this.setPos(0.0, 0.0, 0.0);
+         this.eyeHeight = this.dimensions.eyeHeight();
+         this.despawnTime = level == null || type == EntityType.PLAYER ? -1 : level.paperConfig().entities.spawning.despawnTime.getOrDefault(type, io.papermc.paper.configuration.type.number.IntOr.Disabled.DISABLED).or(-1); // Paper - entity despawn time limit
++        this.updateLastTick(); // Nitro - Rewrite entity despawn time
+     }
+ 
+     public boolean isColliding(BlockPos pos, BlockState state) {
+@@ -866,14 +869,45 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+     }
+ 
+     public void tick() {
++        // Nitro start - Rewrite entity despawn time
++        if (!this.shouldSkipBaseDespawnCheck && this.detectDespawnTime()) {
++            return;
++        }
++        /*
+         // Paper start - entity despawn time limit
+         if (this.despawnTime >= 0 && this.totalEntityAge >= this.despawnTime) {
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN);
+             return;
+         }
+         // Paper end - entity despawn time limit
++        */
++        // Nitro end - Rewrite entity despawn time
+         this.baseTick();
+     }
++    // Nitro start - Rewrite entity despawn time
++    protected final boolean detectDespawnTime() {
++        this.syncEntityAge();
++        if (this.despawnTime >= 0) {
++            if (this.totalEntityAge >= this.despawnTime) {
++                this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN);
++                return true;
++            }
++        }
++        return false;
++    }
++    private int calculateMissedTicks() {
++        return net.minecraft.server.MinecraftServer.currentTick - this.lastTickTime;
++    }
++    private void syncEntityAge() {
++        int missedTicks = this.calculateMissedTicks();
++        if (missedTicks > 1) {
++            this.totalEntityAge += missedTicks;
++        }
++    }
++    public void updateLastTick() {
++        this.lastTickTime = net.minecraft.server.MinecraftServer.currentTick;
++    }
++    // Nitro end - Rewrite entity despawn time
+ 
+     // CraftBukkit start
+     public void postTick() {
+@@ -2610,6 +2644,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+             if (this.maxAirTicks != this.getDefaultMaxAirSupply() && this.getDefaultMaxAirSupply() != this.level().purpurConfig.drowningAirTicks) { // Purpur - Drowning Settings
+                 output.putInt("Bukkit.MaxAirSupply", this.getMaxAirSupply());
+             }
++            this.syncEntityAge(); // Nitro - Rewrite entity despawn time
+             output.putInt("Spigot.ticksLived", this.totalEntityAge); // Paper
+             // CraftBukkit end
+             output.storeNullable("CustomName", ComponentSerialization.CODEC, this.getCustomName());
+@@ -2769,7 +2804,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+ 
+             // CraftBukkit start
+             // Spigot start
+-            if (this instanceof net.minecraft.world.entity.LivingEntity) {
++            if (true || this instanceof net.minecraft.world.entity.LivingEntity) { // Nitro - Rewrite entity despawn time
+                 this.totalEntityAge = input.getIntOr("Spigot.ticksLived", 0); // Paper
+             }
+             // Spigot end
+@@ -5313,9 +5348,10 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+ 
+     @Override
+     public boolean shouldBeSaved() {
++        this.syncEntityAge(); // Nitro - Rewrite entity despawn time
+         return (this.removalReason == null || this.removalReason.shouldSave())
+             && !this.isPassenger()
+-            && (!this.isVehicle() || !((ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity)this).moonrise$hasAnyPlayerPassengers()); // Paper - rewrite chunk system
++                && (!this.isVehicle() || !((ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity)this).moonrise$hasAnyPlayerPassengers()) && (this.despawnTime < 0 || this.totalEntityAge < this.despawnTime); // Paper - rewrite chunk system // Nitro - Rewrite entity despawn time
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/projectile/ThrowableProjectile.java b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
+index dfda0560e364aa7777bc1aa76febc55f1c2dd5a0..66a0fef7c38849b5b985032f031fba6ec8f9527b 100644
+--- a/net/minecraft/world/entity/projectile/ThrowableProjectile.java
++++ b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
+@@ -44,6 +44,11 @@ public abstract class ThrowableProjectile extends Projectile {
+ 
+     @Override
+     public void tick() {
++        // Nitro start - Rewrite entity despawn time - Check earlier for projectiles
++        if (this.detectDespawnTime()) {
++            return;
++        }
++        // Nitro end - Rewrite entity despawn time - Check earlier for projectiles
+         this.handleFirstTickBubbleColumn();
+         this.applyGravity();
+         this.applyInertia();

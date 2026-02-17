@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 16 Feb 2026 17:57:10 -0800
+Subject: [PATCH] Gale-Reduce-block-destruction-packet-allocations
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 2dfa5a102370f65dd5bcd4000e692bfeecc3631f..ba01962fadeec30988f414c5adb8d1b821609597 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -1832,6 +1832,13 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+ 
+     @Override
+     public void destroyBlockProgress(int breakerId, BlockPos pos, int progress) {
++        // Nitro - reduce block destruction packet allocations
++        var players = this.server.getPlayerList().getPlayers();
++        if (players.isEmpty()) {
++            return;
++        }
++        ClientboundBlockDestructionPacket packet = new ClientboundBlockDestructionPacket(breakerId, pos, progress);
++        // Nitro - reduce block destruction packet allocations
+         // CraftBukkit start
+         Player breakerPlayer = null;
+         Entity entity = this.getEntity(breakerId);
+@@ -1848,7 +1855,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+                 .callEvent();
+         }
+         // Paper end - Add BlockBreakProgressUpdateEvent
+-        for (ServerPlayer serverPlayer : this.server.getPlayerList().getPlayers()) {
++        for (ServerPlayer serverPlayer : players) { // Nitro - reduce block destruction packet allocations
+             if (serverPlayer.level() == this && serverPlayer.getId() != breakerId) {
+                 double d = pos.getX() - serverPlayer.getX();
+                 double d1 = pos.getY() - serverPlayer.getY();
+@@ -1859,7 +1866,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+                 }
+                 // CraftBukkit end
+                 if (d * d + d1 * d1 + d2 * d2 < 1024.0) {
+-                    serverPlayer.connection.send(new ClientboundBlockDestructionPacket(breakerId, pos, progress));
++                    serverPlayer.connection.send(packet); // Nitro - reduce block destruction packet allocations
+                 }
+             }
+         }

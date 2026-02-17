@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 16 Feb 2026 17:52:13 -0800
+Subject: [PATCH] Leaf-Don-t-throw-exception-on-missing-ResourceKey-value
+
+
+diff --git a/src/main/java/io/papermc/paper/configuration/serializer/registry/RegistryValueSerializer.java b/src/main/java/io/papermc/paper/configuration/serializer/registry/RegistryValueSerializer.java
+index 6d39c5ee997f051147180c1d6f23d2a18e3f3aa4..39d15a8164503a4f3e6e3ad555a35dc9f49fe4d3 100644
+--- a/src/main/java/io/papermc/paper/configuration/serializer/registry/RegistryValueSerializer.java
++++ b/src/main/java/io/papermc/paper/configuration/serializer/registry/RegistryValueSerializer.java
+@@ -33,7 +33,11 @@ public final class RegistryValueSerializer<T> extends RegistryEntrySerializer<T,
+     protected T convertFromResourceKey(final ResourceKey<T> key) throws SerializationException {
+         final T value = this.registry().getValue(key);
+         if (value == null) {
+-            throw new SerializationException("Missing value in " + this.registry() + " with key " + key.identifier());
++            // Nitro start - Don't throw exception on missing ResourceKey value
++            //throw new SerializationException("Missing value in " + this.registry() + " with key " + key.identifier());
++            com.mojang.logging.LogUtils.getClassLogger().error("Missing value in {} with key {}", this.registry(), key.identifier());
++            return null;
++            // Nitro end - Don't throw exception on missing ResourceKey value
+         }
+         return value;
+     }

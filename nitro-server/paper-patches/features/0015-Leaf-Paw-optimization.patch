@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 16 Feb 2026 17:47:37 -0800
+Subject: [PATCH] Leaf-Paw-optimization
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/block/data/CraftBlockData.java b/src/main/java/org/bukkit/craftbukkit/block/data/CraftBlockData.java
+index 68bb1b85227390aa29e4214bbc3d97dac1517534..d1478da5da3d48d7be31efb98d5b9ffa620eeaaa 100644
+--- a/src/main/java/org/bukkit/craftbukkit/block/data/CraftBlockData.java
++++ b/src/main/java/org/bukkit/craftbukkit/block/data/CraftBlockData.java
+@@ -244,13 +244,34 @@ public class CraftBlockData implements BlockData {
+ 
+         if (!states.isEmpty()) {
+             stateString.append('[');
+-            stateString.append(states.entrySet().stream().map(StateHolder.PROPERTY_ENTRY_TO_STRING_FUNCTION).collect(Collectors.joining(",")));
++            // Nitro start - paw optimization
++            int i = 0;
++            for (Map.Entry<Property<?>, Comparable<?>> propertyEntry : states.entrySet()) {
++                if (propertyEntry == null) {
++                    stateString.append("<NULL>");
++                } else {
++                    Property<?> property = propertyEntry.getKey();
++                    Comparable<?> value = propertyEntry.getValue();
++                    stateString.append(property.getName()).append("=").append(getValueName(property, value));
++                }
++                if (i < states.size() - 1) {
++                    stateString.append(",");
++                }
++                i++;
++            }
++            // Nitro end - paw optimization
+             stateString.append(']');
+         }
+ 
+         return stateString.toString();
+     }
+ 
++    // Nitro start - paw optimization
++    private <T extends Comparable<T>> String getValueName(Property<T> property, Comparable<?> value) {
++        return property.getName((T) value);
++    }
++    // Nitro end - paw optimization
++
+     public Map<String, String> toStates(boolean hideUnspecified) {
+         return (hideUnspecified && this.parsedStates != null) ? CraftBlockData.toStates(this.parsedStates) : CraftBlockData.toStates(this.state.getValues());
+     }
