@@ -111,7 +111,7 @@ public final class NitroConfig {
     // Nitro end - Adrenaline Rush
     // Nitro start - Sleep Bonus
     @GlobalConfig(name = "sleepBonusEnabled", category = {"features", "sleep-bonus"})
-    public static boolean sleepBonusEnabled = true;
+    public static boolean sleepBonusEnabled = false;
     @GlobalConfig(name = "sleepBonusEffect", category = {"features", "sleep-bonus"})
     public static String sleepBonusEffect = "REGENERATION";
     @GlobalConfig(name = "sleepBonusDuration", category = {"features", "sleep-bonus"})
