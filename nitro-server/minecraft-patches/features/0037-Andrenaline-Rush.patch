@@ -5,7 +5,7 @@ Subject: [PATCH] Andrenaline Rush
 
 
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index 9312a20c37329f2892e0b6231566bb1f96e1e7ac..5f6a97a94a02bd883e1e202c95aa2d3248e7a88d 100644
+index b0d2ddd2b2abf2e2980b9440f7109c32e8606c04..3479db04e2120f2cb5b2a0802ef7b93581c3795a 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
 @@ -182,6 +182,7 @@ public abstract class Player extends Avatar implements ContainerUser {

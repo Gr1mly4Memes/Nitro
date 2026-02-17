@@ -5,10 +5,10 @@ Subject: [PATCH] Disable moved wrongly threshold
 
 
 diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 0e17b54d7c3046cc85d15956793450ff70857b3c..60432e4ed8dcb3d895be1f4c526f8cc1c0ed685f 100644
+index 91f9739bf34b824c5955ad0a9ef04dcb7c2e6736..2bf13fd9be395a3cb3625316af278007c90b411b 100644
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -626,7 +626,7 @@ public class ServerGamePacketListenerImpl
+@@ -627,7 +627,7 @@ public class ServerGamePacketListenerImpl
                      return;
                  }
                  // Paper end - Prevent moving into unloaded chunks
@@ -17,7 +17,7 @@ index 0e17b54d7c3046cc85d15956793450ff70857b3c..60432e4ed8dcb3d895be1f4c526f8cc1
                      // CraftBukkit end
                      LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", rootVehicle.getPlainTextName(), this.player.getPlainTextName(), d3, d4, d5);
                      this.send(ClientboundMoveVehiclePacket.fromEntity(rootVehicle));
-@@ -654,7 +654,7 @@ public class ServerGamePacketListenerImpl
+@@ -655,7 +655,7 @@ public class ServerGamePacketListenerImpl
                  d5 = d2 - rootVehicle.getZ();
                  d7 = d3 * d3 + d4 * d4 + d5 * d5;
                  boolean flag1 = false;
@@ -26,7 +26,7 @@ index 0e17b54d7c3046cc85d15956793450ff70857b3c..60432e4ed8dcb3d895be1f4c526f8cc1
                      flag1 = true; // Paper - diff on change, this should be moved wrongly
                      LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", rootVehicle.getPlainTextName(), this.player.getPlainTextName(), Math.sqrt(d7));
                  }
-@@ -1567,6 +1567,9 @@ public class ServerGamePacketListenerImpl
+@@ -1568,6 +1568,9 @@ public class ServerGamePacketListenerImpl
                                          io.papermc.paper.event.player.PlayerFailMoveEvent event = fireFailMove(io.papermc.paper.event.player.PlayerFailMoveEvent.FailReason.MOVED_INTO_UNLOADED_CHUNK,
                                                  toX, toY, toZ, toYaw, toPitch, false);
                                          if (!event.isAllowed()) {
@@ -36,7 +36,7 @@ index 0e17b54d7c3046cc85d15956793450ff70857b3c..60432e4ed8dcb3d895be1f4c526f8cc1
                                              this.internalTeleport(PositionMoveRotation.of(this.player), Collections.emptySet());
                                              return;
                                          }
-@@ -1650,7 +1653,7 @@ public class ServerGamePacketListenerImpl
+@@ -1651,7 +1654,7 @@ public class ServerGamePacketListenerImpl
                                  d5 = d2 - this.player.getZ();
                                  d7 = d3 * d3 + d4 * d4 + d5 * d5;
                                  boolean movedWrongly = false; // Paper - Add fail move event; rename
