@@ -1,0 +1,136 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Mon, 16 Feb 2026 19:37:29 -0800
+Subject: [PATCH]  Optimize LazyHashSet with cached size
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java b/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java
+index 73a37638abacdffbff8274291a64ea6cd0be7a5e..f929736cfc2fa6b22fab3c4580ce6b4b3ab2d042 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java
+@@ -6,15 +6,25 @@ import java.util.Set;
+ 
+ public abstract class LazyHashSet<E> implements Set<E> {
+     Set<E> reference = null;
++    protected Integer cachedSize = null; // Nitro - Optimize LazyHashSet with cached size
+ 
+     @Override
+     public int size() {
+-        return this.getReference().size();
++        if (this.isLazy()) {
++            if (this.cachedSize == null) {
++                this.cachedSize = this.getReference().size(); // Nitro - Cache size to avoid materialization
++            }
++            return this.cachedSize;
++        }
++        return this.reference.size();
+     }
+ 
+     @Override
+     public boolean isEmpty() {
+-        return this.getReference().isEmpty();
++        if (this.isLazy()) {
++            return this.size() == 0; // Nitro - Use cached size for efficiency
++        }
++        return this.reference.isEmpty();
+     }
+ 
+     @Override
+@@ -39,11 +49,13 @@ public abstract class LazyHashSet<E> implements Set<E> {
+ 
+     @Override
+     public boolean add(E o) {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         return this.getReference().add(o);
+     }
+ 
+     @Override
+     public boolean remove(Object o) {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         return this.getReference().remove(o);
+     }
+ 
+@@ -54,21 +66,25 @@ public abstract class LazyHashSet<E> implements Set<E> {
+ 
+     @Override
+     public boolean addAll(Collection<? extends E> c) {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         return this.getReference().addAll(c);
+     }
+ 
+     @Override
+     public boolean retainAll(Collection<?> c) {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         return this.getReference().retainAll(c);
+     }
+ 
+     @Override
+     public boolean removeAll(Collection<?> c) {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         return this.getReference().removeAll(c);
+     }
+ 
+     @Override
+     public void clear() {
++        this.invalidateCache(); // Nitro - Invalidate cache on modification
+         this.getReference().clear();
+     }
+ 
+@@ -86,6 +102,16 @@ public abstract class LazyHashSet<E> implements Set<E> {
+         return this.reference == null;
+     }
+ 
++    protected void invalidateCache() {
++        this.cachedSize = null; // Nitro - Reset cached size
++    }
++
++    protected void updateCachedSize(int newSize) {
++        if (this.isLazy()) {
++            this.cachedSize = newSize; // Nitro - Update cached size efficiently
++        }
++    }
++
+     @Override
+     public int hashCode() {
+         return 157 * this.getReference().hashCode();
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/LazyPlayerSet.java b/src/main/java/org/bukkit/craftbukkit/util/LazyPlayerSet.java
+index 25aae550dcdcef2df268d0dd99bdcc9bbd49fcf8..7786d2a9b28eda0e9fc4378856325fe937648815 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/LazyPlayerSet.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/LazyPlayerSet.java
+@@ -16,12 +16,6 @@ public class LazyPlayerSet extends LazyHashSet<Player> {
+         this.server = server;
+     }
+ 
+-    @Override
+-    protected Set<Player> makeReference() { // Paper - protected
+-        Preconditions.checkState(this.reference == null, "Reference already created!");
+-        return makePlayerSet(this.server);
+-    }
+-
+     public static Set<Player> makePlayerSet(final MinecraftServer server) {
+         List<ServerPlayer> players = server.getPlayerList().players;
+         Set<Player> reference = new HashSet<>(players.size());
+@@ -30,4 +24,23 @@ public class LazyPlayerSet extends LazyHashSet<Player> {
+         }
+         return reference;
+     }
++
++    @Override
++    protected Set<Player> makeReference() { // Paper - protected
++        Preconditions.checkState(this.reference == null, "Reference already created!");
++        Set<Player> reference = makePlayerSet(this.server);
++        this.updateCachedSize(reference.size()); // Nitro - Cache size after materialization
++        return reference;
++    }
++
++    @Override
++    public int size() {
++        if (this.isLazy()) {
++            if (this.cachedSize == null) {
++                this.cachedSize = this.server.getPlayerList().players.size(); // Nitro - Get size without materializing set
++            }
++            return this.cachedSize;
++        }
++        return this.reference.size();
++    }
+ }
