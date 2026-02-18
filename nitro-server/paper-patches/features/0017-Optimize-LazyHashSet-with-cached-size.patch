@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Gr1mly4Memes <alagozantoni14@gmail.com>
 Date: Mon, 16 Feb 2026 19:37:29 -0800
-Subject: [PATCH]  Optimize LazyHashSet with cached size
+Subject: [PATCH] Optimize LazyHashSet with cached size
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java b/src/main/java/org/bukkit/craftbukkit/util/LazyHashSet.java
