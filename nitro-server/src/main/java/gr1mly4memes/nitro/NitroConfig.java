@@ -245,6 +245,8 @@ public final class NitroConfig {
     public static int spawnerTpsThreshold = 15;
     @GlobalConfig(name = "force-minecraft-command", category = {"Miscellaneous"})
     public static boolean forceMinecraftCommand = false;
+    @GlobalConfig(name = "silent-creepers", category = {"Miscellaneous"})
+    public static boolean silentCreepers = false;
     // Nitro end - Miscellaneous
 
     // Nitro start - Parallel World Ticking

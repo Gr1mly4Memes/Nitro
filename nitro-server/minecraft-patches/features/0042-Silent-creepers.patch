@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Gr1mly4Memes <alagozantoni14@gmail.com>
+Date: Tue, 17 Feb 2026 19:12:04 -0800
+Subject: [PATCH] Silent creepers
+
+
+diff --git a/net/minecraft/world/entity/monster/Creeper.java b/net/minecraft/world/entity/monster/Creeper.java
+index 608d787b73dce1726ccece9e0372acf995f261d4..2c9dc1b5d5663ae0737c23199a6803fdfd028f9b 100644
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -219,6 +219,7 @@ public class Creeper extends Monster {
+ 
+             int swellDir = this.getSwellDir();
+             if (swellDir > 0 && this.swell == 0) {
++                if (!gr1mly4memes.nitro.NitroConfig.silentCreepers) // Nitro
+                 this.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
+                 this.gameEvent(GameEvent.PRIME_FUSE);
+             }
